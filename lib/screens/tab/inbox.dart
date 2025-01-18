@@ -33,6 +33,7 @@ class _InboxScreenState extends State<InboxScreen> {
               stream: FirebaseFirestore.instance
                   .collection("chats")
                   .where("friendId", isEqualTo: currentUserId)
+                  .where("isAccepted", isEqualTo: true)
                   .snapshots(),
               builder:
                   (context, AsyncSnapshot<QuerySnapshot> customerSnapshot) {
@@ -120,9 +121,6 @@ class _InboxScreenState extends State<InboxScreen> {
                               ),
                             );
                           },
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(otherUserPhoto),
-                          ),
                           title: Text(
                             otherUserName,
                             style: GoogleFonts.poppins(

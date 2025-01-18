@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:muslim_mariage/screens/chat/message.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 
 class ReceivedScreen extends StatefulWidget {
@@ -11,6 +12,46 @@ class ReceivedScreen extends StatefulWidget {
 }
 
 class _ReceivedScreenState extends State<ReceivedScreen> {
+  void _acceptRequest(String docId, Map<String, dynamic> data) {
+    FirebaseFirestore.instance
+        .collection("chats")
+        .doc(docId)
+        .update({"isAccepted": true}).then((_) {
+      // Show the confirmation dialog after accepting the request
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Request Accepted'),
+            content: Text('You have accepted the following user request.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Close'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => Messages(
+                        userId: data['userId'],
+                        userName: data['userName'],
+                        friendImage: data['friendImage'],
+                        userPhoto: data['userPhoto'],
+                        friendId: data['friendId'],
+                        chatId: data['chatId'],
+                        friendName: data['friendName'],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,40 +89,52 @@ class _ReceivedScreenState extends State<ReceivedScreen> {
 
               return ListView.builder(
                 padding: EdgeInsets.zero,
-
-                itemCount: userDocs.length, // For simplicity
+                itemCount: userDocs.length,
                 itemBuilder: (context, index) {
                   final Map<String, dynamic> data =
                       userDocs[index].data() as Map<String, dynamic>;
+                  final docId = userDocs[index].id;
+
                   return Card(
                     child: ListTile(
-                      onTap: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (builder) => ProfileDetail(
-                        //         friendPhoto: data['image'] ??
-                        //             Image.asset("assets/logo.png"),
-                        //         friendName: data['fullName'],
-                        //         friendId: data['uid'],
-                        //         friendDOB: data['dob'] ?? "Not Available",
-                        //         gender: data['gender'],
-                        //         sect: data['sect'] ?? "Not Available",
-                        //         cast: data['cast'] ?? "Not Available",
-                        //         friendPhone: data['contactNumber'] ??
-                        //             "Not Available",
-                        //         friendQualification:
-                        //             data['qualification'] ??
-                        //                 "Not Available",
-                        //         yourSelf: data['aboutYourself'] ??
-                        //             "Not Available"),
-                        //   ),
-                        // );
-                      },
+                      onTap: () {},
+                      trailing: TextButton(
+                          onPressed: () {
+                            showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Confirm'),
+                                  content: Text(
+                                      'Do you want to accept this request?'),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text('No'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    ),
+                                    TextButton(
+                                      child: Text('Yes'),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _acceptRequest(docId, data);
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          child: Text(
+                            "Accept",
+                            style: TextStyle(color: mainColor),
+                          )),
                       leading: CircleAvatar(
-                        backgroundImage: NetworkImage(data['friendImage']),
+                        backgroundImage: NetworkImage(data['userPhoto']),
                       ),
-                      title: Text(data['friendName'] ?? 'No Name'),
+                      title: Text(data['userName'] ?? 'No Name'),
                       subtitle: Text("Status: Pending"),
                     ),
                   );
