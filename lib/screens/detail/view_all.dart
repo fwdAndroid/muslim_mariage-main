@@ -68,7 +68,10 @@ class _ViewAllState extends State<ViewAll> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (builder) => ReportUser()));
+                                          builder: (builder) => ReportUser(
+                                                FriendName: data['fullName'],
+                                                FriendID: data['uid'],
+                                              )));
                                 },
                                 child: Text("Report User")),
                             onTap: () {

@@ -168,7 +168,10 @@ class _ProfileDetailState extends State<ProfileDetail> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (builder) => ReportUser()));
+                                  builder: (builder) => ReportUser(
+                                        FriendName: widget.friendName,
+                                        FriendID: widget.friendId,
+                                      )));
                         },
                         child: Text(
                           "Report Account",

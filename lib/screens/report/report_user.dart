@@ -6,7 +6,9 @@ import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:uuid/uuid.dart';
 
 class ReportUser extends StatefulWidget {
-  const ReportUser({super.key});
+  String FriendName;
+  String FriendID;
+  ReportUser({super.key, required this.FriendName, required this.FriendID});
 
   @override
   State<ReportUser> createState() => _ReportUserState();
