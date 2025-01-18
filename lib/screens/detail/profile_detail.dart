@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:muslim_mariage/screens/chat/message.dart';
 import 'package:muslim_mariage/screens/report/report_user.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:uuid/uuid.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfileDetail extends StatefulWidget {
   String yourSelf;
@@ -37,6 +37,7 @@ class ProfileDetail extends StatefulWidget {
 
 class _ProfileDetailState extends State<ProfileDetail> {
   var uuid = const Uuid().v4();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,40 +101,65 @@ class _ProfileDetailState extends State<ProfileDetail> {
                   ),
                 ),
                 const Spacer(),
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SaveButton(
-                        title: "Chat Now",
-                        onTap: () async {
-                          await FirebaseFirestore.instance
-                              .collection("chats")
-                              .doc(uuid)
-                              .set({
-                            "friendName": widget.friendName,
-                            "friendId": widget.friendId,
-                            "friendImage": widget.friendPhoto,
-                            "chatId": uuid,
-                            "userName": snap['fullName'],
-                            "userId": FirebaseAuth.instance.currentUser!.uid,
-                            "userPhoto": snap['image'],
-                          });
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (builder) => Messages(
-                                        userPhoto: snap['image'],
-                                        friendName: widget.friendName,
-                                        chatId: uuid,
-                                        friendId: widget.friendId,
-                                        friendImage: widget.friendPhoto,
-                                        userId: FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                        userName: snap['fullName'],
-                                      )));
-                        }),
-                  ),
-                ),
+                isLoading
+                    ? Center(
+                        child: CircularProgressIndicator(
+                          color: mainColor,
+                        ),
+                      )
+                    : Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SaveButton(
+                              title: "Send Chat Request",
+                              onTap: () async {
+                                setState(() {
+                                  isLoading = true;
+                                });
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Chat Request Sent to ${widget.friendName}",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIosWeb: 1,
+                                    backgroundColor: mainColor,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0);
+                                await FirebaseFirestore.instance
+                                    .collection("chats")
+                                    .doc(uuid)
+                                    .set({
+                                  "friendName": widget.friendName,
+                                  "friendId": widget.friendId,
+                                  "friendImage": widget.friendPhoto,
+                                  "chatId": uuid,
+                                  "userName": snap['fullName'],
+                                  "userId":
+                                      FirebaseAuth.instance.currentUser!.uid,
+                                  "userPhoto": snap['image'],
+                                  "isAccepted": false,
+                                });
+
+                                setState(() {
+                                  isLoading = false;
+                                });
+
+                                // Navigator.push(
+                                //     context,
+                                //     MaterialPageRoute(
+                                //         builder: (builder) => Messages(
+                                //               userPhoto: snap['image'],
+                                //               friendName: widget.friendName,
+                                //               chatId: uuid,
+                                //               friendId: widget.friendId,
+                                //               friendImage: widget.friendPhoto,
+                                //               userId: FirebaseAuth
+                                //                   .instance.currentUser!.uid,
+                                //               userName: snap['fullName'],
+                                //             )));
+                              }),
+                        ),
+                      ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Center(
@@ -153,27 +179,6 @@ class _ProfileDetailState extends State<ProfileDetail> {
               ],
             );
           }),
-    );
-  }
-
-  Widget _buildTextField(String labelText, IconData? icon, {int maxLines = 1}) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextField(
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: labelText,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-          prefixIcon: icon != null ? Icon(icon) : null,
-        ),
-      ),
     );
   }
 }
