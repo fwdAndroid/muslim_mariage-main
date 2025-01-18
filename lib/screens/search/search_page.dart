@@ -142,12 +142,25 @@ class _SearchPageState extends State<SearchPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (builder) => ProfileDetail(
-                                          friendPhoto: data['image'],
-                                          friendName: data['fullName'],
-                                          friendId: data['uid'],
-                                          image: data['image'],
-                                          yourSelf: data['aboutYourself'],
-                                        ),
+                                            friendPhoto: data['image'] ??
+                                                Image.asset("assets/logo.png"),
+                                            friendName: data['fullName'],
+                                            friendId: data['uid'],
+                                            friendDOB:
+                                                data['dob'] ?? "Not Available",
+                                            gender: data['gender'],
+                                            sect:
+                                                data['sect'] ?? "Not Available",
+                                            cast:
+                                                data['cast'] ?? "Not Available",
+                                            friendPhone:
+                                                data['contactNumber'] ??
+                                                    "Not Available",
+                                            friendQualification:
+                                                data['qualification'] ??
+                                                    "Not Available",
+                                            yourSelf: data['aboutYourself'] ??
+                                                "Not Available"),
                                       ),
                                     );
                                   },

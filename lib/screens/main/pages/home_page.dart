@@ -146,11 +146,21 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (builder) => ProfileDetail(
-                                      friendPhoto: data['image'],
+                                      friendPhoto: data['image'] ??
+                                          Image.asset("assets/logo.png"),
                                       friendName: data['fullName'],
                                       friendId: data['uid'],
-                                      image: data['image'],
-                                      yourSelf: data['aboutYourself'])));
+                                      friendDOB: data['dob'] ?? "Not Available",
+                                      gender: data['gender'],
+                                      sect: data['sect'] ?? "Not Available",
+                                      cast: data['cast'] ?? "Not Available",
+                                      friendPhone: data['contactNumber'] ??
+                                          "Not Available",
+                                      friendQualification:
+                                          data['qualification'] ??
+                                              "Not Available",
+                                      yourSelf: data['aboutYourself'] ??
+                                          "Not Available")));
                         },
                         child: Card(
                           shape: RoundedRectangleBorder(
@@ -195,16 +205,30 @@ class _HomePageState extends State<HomePage> {
                                         Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                                builder: (builder) =>
-                                                    ProfileDetail(
-                                                        friendPhoto:
-                                                            data['image'],
-                                                        friendName:
-                                                            data['fullName'],
-                                                        friendId: data['uid'],
-                                                        image: data['image'],
-                                                        yourSelf: data[
-                                                            'aboutYourself'])));
+                                                builder: (builder) => ProfileDetail(
+                                                    friendPhoto: data[
+                                                            'image'] ??
+                                                        Image.asset(
+                                                            "assets/logo.png"),
+                                                    friendName:
+                                                        data['fullName'],
+                                                    friendId: data['uid'],
+                                                    friendDOB: data['dob'] ??
+                                                        "Not Available",
+                                                    gender: data['gender'],
+                                                    sect: data['sect'] ??
+                                                        "Not Available",
+                                                    cast: data['cast'] ??
+                                                        "Not Available",
+                                                    friendPhone:
+                                                        data['contactNumber'] ??
+                                                            "Not Available",
+                                                    friendQualification:
+                                                        data['qualification'] ??
+                                                            "Not Available",
+                                                    yourSelf:
+                                                        data['aboutYourself'] ??
+                                                            "Not Available")));
                                       },
                                       child: Icon(Icons.arrow_forward,
                                           color: Colors.black),

@@ -2,27 +2,34 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:muslim_mariage/screens/chat/message.dart';
-import 'package:muslim_mariage/screens/message/message.dart';
 import 'package:muslim_mariage/screens/report/report_user.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:uuid/uuid.dart';
 
 class ProfileDetail extends StatefulWidget {
-  String image;
   String yourSelf;
-
+  String friendPhone;
+  String friendQualification;
+  String friendDOB;
   String friendPhoto;
   String friendName;
   String friendId;
-  ProfileDetail({
-    super.key,
-    required this.image,
-    required this.yourSelf,
-    required this.friendId,
-    required this.friendName,
-    required this.friendPhoto,
-  });
+  String sect;
+  String cast;
+  String gender;
+  ProfileDetail(
+      {super.key,
+      required this.yourSelf,
+      required this.friendId,
+      required this.friendName,
+      required this.friendPhoto,
+      required this.friendPhone,
+      required this.friendDOB,
+      required this.friendQualification,
+      required this.sect,
+      required this.gender,
+      required this.cast});
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
@@ -53,7 +60,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                 Stack(
                   children: [
                     Image.network(
-                      widget.image,
+                      widget.friendPhoto,
                       width: MediaQuery.of(context).size.width,
                       fit: BoxFit.cover,
                       height: 200,
@@ -119,7 +126,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                         friendName: widget.friendName,
                                         chatId: uuid,
                                         friendId: widget.friendId,
-                                        friendImage: widget.image,
+                                        friendImage: widget.friendPhoto,
                                         userId: FirebaseAuth
                                             .instance.currentUser!.uid,
                                         userName: snap['fullName'],
