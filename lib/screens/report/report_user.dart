@@ -32,7 +32,7 @@ class _ReportUserState extends State<ReportUser> {
             Navigator.pop(context);
           },
         ),
-        title: const Text('Help & Support'),
+        title: const Text('Reports'),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
