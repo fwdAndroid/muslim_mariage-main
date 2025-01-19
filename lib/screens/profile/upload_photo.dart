@@ -31,38 +31,46 @@ class _UploadPhotoState extends State<UploadPhoto> {
   }
 
   Future<void> _savePhotos() async {
+    String bridePhotoUrl;
+
+    // If no photo is selected, use a default placeholder URL or handle it appropriately
     if (_bridePhoto == null) {
-      _showAlert('Please upload photos.');
-      return;
+      bridePhotoUrl = "assets/logo.png"; // Default placeholder image path
+    } else {
+      // Show a loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      try {
+        // Upload the selected photo to Firebase Storage
+        bridePhotoUrl = await _uploadPhoto(_bridePhoto!, 'bridePhoto');
+        Navigator.pop(context); // Close the loading indicator
+      } catch (e) {
+        Navigator.pop(context); // Close the loading indicator
+        _showAlert('Failed to upload photo. Please try again.');
+        return;
+      }
     }
 
-    // Show a loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
+    // Save the photo URL or default to Firestore
     try {
-      // Upload photos to Firebase Storage
-      String bridePhotoUrl = await _uploadPhoto(_bridePhoto!, 'bridePhoto');
-
-      // Save photo URLs to Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .update({
-        'image': bridePhotoUrl ?? FirebaseAuth.instance.currentUser!.photoURL,
+        'image': bridePhotoUrl,
       });
 
-      Navigator.pop(context); // Close the loading indicator
+      // Navigate to the next screen
       Navigator.push(
         context,
         MaterialPageRoute(builder: (builder) => const VerificationScreen()),
       );
     } catch (e) {
-      Navigator.pop(context); // Close the loading indicator
-      _showAlert('Failed to upload photos. Please try again.');
+      _showAlert('Failed to save photo. Please try again.');
     }
   }
 
