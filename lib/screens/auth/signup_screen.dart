@@ -18,7 +18,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _reenterController = TextEditingController();
-
+  final TextEditingController _phoneNumberController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool passwordVisible = false;
@@ -193,6 +193,48 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                 ],
               ),
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0, left: 16),
+                    child: Align(
+                      alignment: AlignmentDirectional.topStart,
+                      child: Text(
+                        'Phone Number',
+                        style: GoogleFonts.poppins(
+                            color: black,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.all(8),
+                    child: TextFormField(
+                      controller: _phoneNumberController,
+                      style: GoogleFonts.poppins(color: black),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.phone,
+                            color: iconColor,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          hintText: "Phone Number",
+                          hintStyle:
+                              GoogleFonts.poppins(color: black, fontSize: 12)),
+                    ),
+                  ),
+                ],
+              ),
               isLoading
                   ? Center(
                       child: CircularProgressIndicator(
@@ -202,9 +244,10 @@ class _SignupScreenState extends State<SignupScreen> {
                   : ElevatedButton(
                       onPressed: () async {
                         if (_emailController.text.isEmpty ||
-                            _passwordController.text.isEmpty) {
+                            _passwordController.text.isEmpty ||
+                            _phoneNumberController.text.isEmpty) {
                           showMessageBar(
-                            "Email & Password is Required",
+                            "Email & Password & PhoneNumber is Required",
                             context,
                           );
                         } else {
@@ -214,6 +257,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           if (_formKey.currentState!.validate()) {
                             try {
                               await AuthMethods().registerUser(
+                                  phone: _phoneNumberController.text,
                                   confirmPassword: _reenterController.text,
                                   context: context,
                                   email: _emailController.text,

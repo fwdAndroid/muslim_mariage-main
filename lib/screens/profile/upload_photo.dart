@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:muslim_mariage/screens/profile/location_confrim.dart';
+import 'package:muslim_mariage/screens/auth/verification_screen.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 
 class UploadPhoto extends StatefulWidget {
@@ -16,7 +16,6 @@ class UploadPhoto extends StatefulWidget {
 
 class _UploadPhotoState extends State<UploadPhoto> {
   File? _bridePhoto;
-  File? _groomPhoto;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(bool isBridePhoto) async {
@@ -26,8 +25,6 @@ class _UploadPhotoState extends State<UploadPhoto> {
       setState(() {
         if (isBridePhoto) {
           _bridePhoto = File(pickedFile.path);
-        } else {
-          _groomPhoto = File(pickedFile.path);
         }
       });
     }
@@ -61,7 +58,7 @@ class _UploadPhotoState extends State<UploadPhoto> {
       Navigator.pop(context); // Close the loading indicator
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (builder) => const LocationConfrim()),
+        MaterialPageRoute(builder: (builder) => const VerificationScreen()),
       );
     } catch (e) {
       Navigator.pop(context); // Close the loading indicator

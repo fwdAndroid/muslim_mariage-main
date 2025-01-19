@@ -44,12 +44,12 @@ class AuthMethods {
     return res;
   }
 
-  Future<String> registerUser({
-    required BuildContext context, // Add BuildContext
-    required String confirmPassword,
-    required String email,
-    required String password,
-  }) async {
+  Future<String> registerUser(
+      {required BuildContext context, // Add BuildContext
+      required String confirmPassword,
+      required String email,
+      required String password,
+      required String phone}) async {
     String res = 'An error occurred';
     try {
       // Check if email is already registered
@@ -73,8 +73,9 @@ class AuthMethods {
           "email": FirebaseAuth.instance.currentUser!.email,
           "uid": FirebaseAuth.instance.currentUser!.uid,
           "fullName": "",
-          "phone": "",
+          "contactNumber": phone,
           "location": "",
+          "status": 'pending'
         });
 
         res = 'success';

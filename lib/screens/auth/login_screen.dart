@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/auth/forgot_password.dart';
 import 'package:muslim_mariage/screens/auth/signup_screen.dart';
+import 'package:muslim_mariage/screens/auth/verification_screen.dart';
 import 'package:muslim_mariage/screens/main/main_dashboard.dart';
 import 'package:muslim_mariage/screens/profile/complete_profile.dart';
 import 'package:muslim_mariage/services/auth_methods.dart';
@@ -214,19 +215,43 @@ class _LoginScreenState extends State<LoginScreen> {
                 setState(() {
                   isLoading = true;
                 });
+
                 String result = await AuthMethods().loginUpUser(
                   email: emailController.text.trim(),
                   pass: passController.text.trim(),
                 );
+
                 if (result == 'success') {
-                  _saveRememberMe();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (builder) => MainDashboard()),
-                  );
+                  String uid = FirebaseAuth.instance.currentUser!.uid;
+
+                  // Get user document from Firestore using UID
+                  DocumentSnapshot userDoc = await FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(uid)
+                      .get();
+                  if (userDoc.exists) {
+                    String status = userDoc['status'];
+                    if (status == 'accepted') {
+                      _saveRememberMe();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => MainDashboard()),
+                      );
+                    } else {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => VerificationScreen()),
+                      );
+                    }
+                  } else {
+                    showMessageBar("User document not found", context);
+                  }
                 } else {
                   showMessageBar(result, context);
                 }
+
                 setState(() {
                   isLoading = false;
                 });
@@ -279,75 +304,89 @@ class _LoginScreenState extends State<LoginScreen> {
               ? const Center(child: CircularProgressIndicator())
               : Center(
                   child: FlutterSocialButton(
-                      buttonType: ButtonType.google,
-                      onTap: () async {
-                        setState(() {
-                          isGoogle = true;
-                        });
+                    buttonType: ButtonType.google,
+                    onTap: () async {
+                      setState(() {
+                        isGoogle = true;
+                      });
 
+                      try {
+                        // Perform Google sign-in
                         await AuthMethods().signInWithGoogle();
 
-                        try {
-                          // Get the UserCredential object
+                        // Fetch the current user's UID
+                        String uid = FirebaseAuth.instance.currentUser!.uid;
+                        DocumentSnapshot userDoc = await FirebaseFirestore
+                            .instance
+                            .collection("users")
+                            .doc(uid)
+                            .get();
 
-                          final userDoc = await FirebaseFirestore.instance
-                              .collection("users")
-                              .doc(FirebaseAuth.instance.currentUser!.uid)
-                              .get();
+                        if (userDoc.exists) {
+                          // Retrieve user data
+                          Map<String, dynamic>? userData =
+                              userDoc.data() as Map<String, dynamic>?;
 
-                          if (userDoc.exists) {
-                            // Retrieve user data
-                            final userData = userDoc.data();
-                            final fullName = userData?['fullName'];
+                          String? status = userData?['status'];
+                          String? fullName = userData?['fullName'];
 
-                            // Check if any field is null or empty
-                            if ((fullName == null || fullName.isEmpty)) {
-                              // Navigate to ProfilePage1 to complete the profile
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (builder) =>
-                                        const CompleteProfile()),
-                              );
-                            } else {
-                              // All fields are valid, navigate to MainDashboard
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (builder) => MainDashboard()),
-                              );
-                            }
-                          } else {
-                            // If the user does not exist, create a new document
-                            await FirebaseFirestore.instance
-                                .collection("users")
-                                .doc(FirebaseAuth.instance.currentUser!.uid)
-                                .set({
-                              "email": FirebaseAuth.instance.currentUser!.email,
-                              "uid": FirebaseAuth.instance.currentUser!.uid,
-                              "fullName": "",
-                              "phone": "",
-                              "location": "",
-                            });
-
-                            // Navigate to ProfilePage1 for new users
+                          if (status == 'pending') {
+                            // Navigate to VerificationPage if status is pending
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => VerificationScreen()),
+                            );
+                          } else if (fullName == null || fullName.isEmpty) {
+                            // Navigate to CompleteProfile if profile is incomplete
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (builder) =>
                                       const CompleteProfile()),
                             );
+                          } else {
+                            // Navigate to MainDashboard if everything is complete
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (builder) => MainDashboard()),
+                            );
                           }
-                        } catch (e) {
-                          showMessageBar(
-                              "Error during sign-in. Please try again. $e",
-                              context);
-                        }
+                        } else {
+                          // Create a new user document for new users
+                          await FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(uid)
+                              .set({
+                            "email": FirebaseAuth.instance.currentUser!.email,
+                            "uid": uid,
+                            "fullName": "",
+                            "contactNumber": FirebaseAuth
+                                    .instance.currentUser!.phoneNumber ??
+                                "",
+                            "location": "",
+                            "status": "pending",
+                          });
 
+                          // Navigate to VerificationPage for new users
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (builder) => CompleteProfile()),
+                          );
+                        }
+                      } catch (e) {
+                        showMessageBar(
+                            "Error during sign-in. Please try again. $e",
+                            context);
+                      } finally {
                         setState(() {
                           isGoogle = false;
                         });
-                      }),
+                      }
+                    },
+                  ),
                 ),
           const Spacer(),
           GestureDetector(

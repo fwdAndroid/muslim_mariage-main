@@ -24,8 +24,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
   final TextEditingController _fatherController = TextEditingController();
   final TextEditingController _motherController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
   final TextEditingController _qualificationController =
       TextEditingController();
   final TextEditingController _jobOccupationController =
@@ -104,9 +102,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
                     prefixIcon: const Icon(Icons.date_range)),
               ),
               const SizedBox(height: 12),
-              _buildTextField(
-                  'Contact Number', _contactNumberController, Icons.phone),
-              const SizedBox(height: 12),
               _buildDropdownField('Your Sect', ['Sunni', 'Shia'],
                   initialValue: _selectedSect),
               const SizedBox(height: 12),
@@ -149,7 +144,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
     if (_fatherController.text.isEmpty ||
         _motherController.text.isEmpty ||
         _dobController.text.isEmpty ||
-        _contactNumberController.text.isEmpty ||
         _qualificationController.text.isEmpty ||
         _jobOccupationController.text.isEmpty ||
         _yourselfController.text.isEmpty) {
@@ -166,7 +160,6 @@ class _CompleteProfileState extends State<CompleteProfile> {
       'motherName': _motherController.text,
       'fullName': _userNameController.text,
       'dob': _dobController.text,
-      'contactNumber': _contactNumberController.text,
       'sect': _selectedSect,
       'gender': _selectedGender,
       'maritalStatus': _selectedMaritalStatus,
