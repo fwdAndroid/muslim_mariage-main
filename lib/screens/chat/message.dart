@@ -1,9 +1,12 @@
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:muslim_mariage/screens/chat/video_call_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
 
@@ -35,6 +38,7 @@ class _MessagesState extends State<Messages> {
   late String groupChatId;
   ScrollController scrollController = ScrollController();
   TextEditingController messageController = TextEditingController();
+  double uploadProgress = 0.0;
 
   @override
   void initState() {
@@ -44,12 +48,134 @@ class _MessagesState extends State<Messages> {
         : "${widget.userId}-${widget.friendId}";
   }
 
+  Future<void> pickAndUploadImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      final file = File(pickedFile.path);
+      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('chat_images')
+          .child(widget.chatId)
+          .child(fileName);
+
+      final uploadTask = storageRef.putFile(file);
+
+      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+        setState(() {
+          uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes!;
+        });
+      });
+
+      try {
+        final snapshot = await uploadTask;
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        sendMessage(downloadUrl, 1); // Send the image message
+      } catch (e) {
+        print('Error uploading image: $e');
+      }
+
+      setState(() {
+        uploadProgress = 0.0; // Reset progress after upload
+      });
+    }
+  }
+
+  void sendMessage(String content, int type) {
+    if (content.trim().isNotEmpty) {
+      messageController.clear();
+
+      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+      final String senderId = currentUserId;
+      final String receiverId =
+          (currentUserId == widget.friendId) ? widget.userId : widget.friendId;
+
+      var documentReference = FirebaseFirestore.instance
+          .collection('messages')
+          .doc(groupChatId)
+          .collection(groupChatId)
+          .doc(DateTime.now().millisecondsSinceEpoch.toString());
+
+      FirebaseFirestore.instance.runTransaction((transaction) async {
+        transaction.set(
+          documentReference,
+          {
+            "senderId": senderId,
+            "receiverId": receiverId,
+            "time": DateTime.now().millisecondsSinceEpoch.toString(),
+            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+            'content': content,
+            'type': type
+          },
+        );
+      }).then((value) {
+        updateLastMessage(content, type);
+      });
+
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    } else {
+      print("Message cannot be empty.");
+    }
+  }
+
+  void updateLastMessage(String messageContent, int messageType) async {
+    final chatDocRef =
+        FirebaseFirestore.instance.collection('chats').doc(widget.chatId);
+
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    // Determine the fields to update for both participants
+    final String fieldToUpdateForCurrentUser =
+        (currentUserId == widget.friendId)
+            ? 'lastMessageByCustomer'
+            : 'lastMessageByProvider';
+    final String fieldToUpdateForOtherUser = (currentUserId == widget.friendId)
+        ? 'lastMessageByProvider'
+        : 'lastMessageByCustomer';
+
+    final chatDocSnapshot = await chatDocRef.get();
+    if (chatDocSnapshot.exists) {
+      String displayMessage = messageType == 1 ? 'Image sent' : messageContent;
+
+      // Update both users' last messages
+      await chatDocRef.update({
+        'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+        fieldToUpdateForCurrentUser: displayMessage,
+        fieldToUpdateForOtherUser:
+            displayMessage, // Update the other user as well
+      }).catchError((error) {
+        print("Failed to update last message: $error");
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (builder) => VideoCallPage()));
+              },
+              icon: Icon(
+                Icons.video_call,
+                color: mainColor,
+              ),
+            ),
+          )
+        ],
         elevation: 0,
         backgroundColor: Colors.white,
         leading: IconButton(
@@ -59,9 +185,7 @@ class _MessagesState extends State<Messages> {
         centerTitle: true,
         title: Column(
           children: [
-            const SizedBox(
-              height: 3,
-            ),
+            const SizedBox(height: 3),
             CircleAvatar(
               radius: 20,
               backgroundImage: NetworkImage(
@@ -104,7 +228,7 @@ class _MessagesState extends State<Messages> {
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 14),
-                          reverse: false,
+                          reverse: false, // Reverse the order of messages
                           controller: scrollController,
                           shrinkWrap: true,
                           itemCount: snapshot.data!.docs.length,
@@ -112,6 +236,7 @@ class _MessagesState extends State<Messages> {
                             var ds = snapshot.data!.docs[index];
                             final bool isCurrentUserSender =
                                 ds.get("senderId") == currentUserId;
+                            final bool isImageMessage = ds.get("type") == 1;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -133,15 +258,67 @@ class _MessagesState extends State<Messages> {
                                             : const Color(0xff668681),
                                       ),
                                       padding: const EdgeInsets.all(12),
-                                      child: Text(
-                                        ds.get("content"),
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: isCurrentUserSender
-                                              ? black
-                                              : colorWhite,
-                                        ),
-                                      ),
+                                      child: isImageMessage
+                                          ? Image.network(
+                                              ds.get("content"),
+                                              fit: BoxFit.cover,
+                                              height: 160,
+                                              width: 200,
+                                              loadingBuilder:
+                                                  (BuildContext context,
+                                                      Widget child,
+                                                      ImageChunkEvent?
+                                                          loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child; // Image is fully loaded
+                                                } else {
+                                                  return Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      CircularProgressIndicator(
+                                                        value: uploadProgress,
+                                                        backgroundColor:
+                                                            Colors.grey[300],
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                                    Color>(
+                                                                mainColor),
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 10),
+                                                      Text(
+                                                        "${(uploadProgress * 100).toStringAsFixed(0)}% Uploading...",
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color:
+                                                              Colors.grey[600],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }
+                                              },
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Text(
+                                                  'Failed to load image',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Text(
+                                              ds.get("content"),
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                color: isCurrentUserSender
+                                                    ? black
+                                                    : colorWhite,
+                                              ),
+                                            ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
@@ -184,6 +361,10 @@ class _MessagesState extends State<Messages> {
                       textInputType: TextInputType.name,
                     ),
                   ),
+                  IconButton(
+                    icon: Icon(Icons.photo, color: mainColor),
+                    onPressed: pickAndUploadImage,
+                  ),
                   const SizedBox(width: 10),
                   FloatingActionButton(
                     shape: const CircleBorder(),
@@ -199,78 +380,17 @@ class _MessagesState extends State<Messages> {
               ),
             ),
           ),
+          if (uploadProgress > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: LinearProgressIndicator(
+                value: uploadProgress,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(mainColor),
+              ),
+            ),
         ],
       ),
     );
-  }
-
-  void sendMessage(String content, int type) {
-    if (content.trim().isNotEmpty) {
-      messageController.clear();
-
-      final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-      final String senderId = currentUserId;
-      final String receiverId =
-          (currentUserId == widget.friendId) ? widget.userId : widget.friendId;
-
-      var documentReference = FirebaseFirestore.instance
-          .collection('messages')
-          .doc(groupChatId)
-          .collection(groupChatId)
-          .doc(DateTime.now().millisecondsSinceEpoch.toString());
-
-      FirebaseFirestore.instance.runTransaction((transaction) async {
-        transaction.set(
-          documentReference,
-          {
-            "senderId": senderId,
-            "receiverId": receiverId,
-            "time": DateTime.now().millisecondsSinceEpoch.toString(),
-            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-            'content': content,
-            'type': type
-          },
-        );
-      }).then((value) {
-        if (type == 0) {
-          updateLastMessage(content); // Now updates both users' last messages
-        }
-      });
-
-      scrollController.animateTo(0.0,
-          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-    } else {
-      // Optionally, show a snackbar or error dialog to inform the user about the empty message
-      print("Message cannot be empty.");
-    }
-  }
-
-  void updateLastMessage(String messageContent) async {
-    final chatDocRef =
-        FirebaseFirestore.instance.collection('chats').doc(widget.chatId);
-
-    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
-
-    // Determine the fields to update for both participants
-    final String fieldToUpdateForCurrentUser =
-        (currentUserId == widget.friendId)
-            ? 'lastMessageByCustomer'
-            : 'lastMessageByProvider';
-    final String fieldToUpdateForOtherUser = (currentUserId == widget.friendId)
-        ? 'lastMessageByProvider'
-        : 'lastMessageByCustomer';
-
-    final chatDocSnapshot = await chatDocRef.get();
-    if (chatDocSnapshot.exists) {
-      // Update both users' last messages
-      await chatDocRef.update({
-        'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-        fieldToUpdateForCurrentUser: messageContent,
-        fieldToUpdateForOtherUser:
-            messageContent, // Update the other user as well
-      }).catchError((error) {
-        print("Failed to update last message: $error");
-      });
-    }
   }
 }
