@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/chat/video_call_page.dart';
+import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
 
@@ -167,10 +168,10 @@ class _MessagesState extends State<Messages> {
             child: IconButton(
               onPressed: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (builder) => VideoCallPage()));
+                    MaterialPageRoute(builder: (builder) => PaymentPage()));
               },
               icon: Icon(
-                Icons.video_call,
+                Icons.call,
                 color: mainColor,
               ),
             ),

@@ -97,6 +97,7 @@ class _ReportUserState extends State<ReportUser> {
                                 "uuid": uuid,
                                 "email": snap['email'],
                                 "name": snap['fullName'],
+                                "status": "pending"
                               });
                               setState(() {
                                 _messageController.clear();

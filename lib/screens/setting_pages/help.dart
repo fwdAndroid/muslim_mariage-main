@@ -95,6 +95,7 @@ class _HelpState extends State<Help> {
                                 "uuid": uuid,
                                 "email": snap['email'],
                                 "name": snap['fullName'],
+                                "status": "pending"
                               });
                               setState(() {
                                 _messageController.clear();
