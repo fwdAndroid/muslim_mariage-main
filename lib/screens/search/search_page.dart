@@ -15,6 +15,24 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   TextEditingController _emailController = TextEditingController();
   String _searchText = '';
+  String _currentUserGender = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserGender();
+  }
+
+  Future<void> _getCurrentUserGender() async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (userDoc.exists) {
+      setState(() {
+        _currentUserGender = userDoc['gender'] ?? '';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,150 +62,161 @@ class _SearchPageState extends State<SearchPage> {
             ),
           ),
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection("users")
-                  .where("uid",
-                      isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-
-                if (_searchText.isEmpty) {
-                  return Center(
+            child: _searchText.isEmpty
+                ? Center(
                     child: Text(
-                      "No Results Found",
+                      "Please enter a search query",
                       style: TextStyle(color: black),
                     ),
-                  );
-                }
+                  )
+                : StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("users")
+                        .where("gender", isNotEqualTo: _currentUserGender)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                final filteredDocs = snapshot.data!.docs.where((doc) {
-                  final data = doc.data() as Map<String, dynamic>;
-                  final fullName = data['fullName'] ?? '';
-                  final castName = data['cast'] ?? '';
-                  final sectName = data['sect'] ?? '';
-                  final professionName = data['qualification'] ?? '';
-                  final searchLower = _searchText.toLowerCase();
+                      final userId = FirebaseAuth.instance.currentUser!.uid;
+                      final filteredDocs = snapshot.data!.docs.where((doc) {
+                        final data = doc.data() as Map<String, dynamic>;
+                        final fullName = data['fullName'] ?? '';
+                        final castName = data['cast'] ?? '';
+                        final sectName = data['sect'] ?? '';
+                        final professionName = data['qualification'] ?? '';
+                        final searchLower = _searchText.toLowerCase();
 
-                  return fullName.toLowerCase().contains(searchLower) ||
-                      castName.toLowerCase().contains(searchLower) ||
-                      sectName.toLowerCase().contains(searchLower) ||
-                      professionName.toLowerCase().contains(searchLower);
-                }).toList();
+                        // Ensure the current user's own document is excluded
+                        if (data['uid'] == userId) {
+                          return false;
+                        }
 
-                if (filteredDocs.isEmpty) {
-                  return Center(
-                    child: Text(
-                      "No Results Found",
-                      style: TextStyle(color: black),
-                    ),
-                  );
-                }
+                        return fullName.toLowerCase().contains(searchLower) ||
+                            castName.toLowerCase().contains(searchLower) ||
+                            sectName.toLowerCase().contains(searchLower) ||
+                            professionName.toLowerCase().contains(searchLower);
+                      }).toList();
 
-                return GridView.builder(
-                  padding: EdgeInsets.zero,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemCount: filteredDocs.length,
-                  itemBuilder: (context, index) {
-                    final data =
-                        filteredDocs[index].data() as Map<String, dynamic>;
-                    final birthday = DateTime.parse(data['dob']);
-                    final age = RegisterFunctions().calculateAge(birthday);
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(8)),
-                              child: Image.network(
-                                data['image'] ?? '', // Handle null safely
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Icon(Icons.error),
-                              ),
-                            ),
+                      if (filteredDocs.isEmpty) {
+                        return Center(
+                          child: Text(
+                            "No Results Found",
+                            style: TextStyle(color: black),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        );
+                      }
+
+                      return GridView.builder(
+                        padding: EdgeInsets.zero,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 8,
+                          crossAxisSpacing: 8,
+                          childAspectRatio: 0.75,
+                        ),
+                        itemCount: filteredDocs.length,
+                        itemBuilder: (context, index) {
+                          final data = filteredDocs[index].data()
+                              as Map<String, dynamic>;
+                          final birthday = DateTime.parse(data['dob']);
+                          final age =
+                              RegisterFunctions().calculateAge(birthday);
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      data['fullName'] ?? 'Unknown',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(8)),
+                                    child: Image.network(
+                                      data['image'] ?? '', // Handle null safely
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Icon(Icons.error),
                                     ),
-                                    Text(data['dob'] ?? 'Unknown'),
-                                  ],
+                                  ),
                                 ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (builder) => ProfileDetail(
-                                            friendMother: data['motherName'] ??
-                                                "Not Available",
-                                            friendFather: data['fatherName' ??
-                                                "Not Available"],
-                                            profileCreator:
-                                                data['profileCreator'],
-                                            maritalStatus:
-                                                data['maritalStatus'],
-                                            location: data['location'],
-                                            friendPhoto: data['image'] ??
-                                                "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
-                                            friendName: data['fullName'],
-                                            friendId: data['uid'],
-                                            friendDOB: age,
-                                            gender: data['gender'],
-                                            sect:
-                                                data['sect'] ?? "Not Available",
-                                            cast:
-                                                data['cast'] ?? "Not Available",
-                                            friendPhone:
-                                                data['contactNumber'] ??
-                                                    "Not Available",
-                                            friendQualification:
-                                                data['qualification'] ??
-                                                    "Not Available",
-                                            yourSelf: data['aboutYourself'] ??
-                                                "Not Available"),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['fullName'] ?? 'Unknown',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(data['dob'] ?? 'Unknown'),
+                                        ],
                                       ),
-                                    );
-                                  },
-                                  child: Icon(Icons.arrow_forward,
-                                      color: Colors.black),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (builder) => ProfileDetail(
+                                                  friendMother:
+                                                      data['motherName'] ??
+                                                          "Not Available",
+                                                  friendFather:
+                                                      data['fatherName'] ??
+                                                          "Not Available",
+                                                  profileCreator:
+                                                      data['profileCreator'],
+                                                  maritalStatus:
+                                                      data['maritalStatus'],
+                                                  location: data['location'],
+                                                  friendPhoto: data['image'] ??
+                                                      "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
+                                                  friendName: data['fullName'],
+                                                  friendId: data['uid'],
+                                                  friendDOB: age,
+                                                  gender: data['gender'],
+                                                  sect: data['sect'] ??
+                                                      "Not Available",
+                                                  cast: data['cast'] ??
+                                                      "Not Available",
+                                                  friendPhone:
+                                                      data[
+                                                              'contactNumber'] ??
+                                                          "Not Available",
+                                                  friendQualification:
+                                                      data['qualification'] ??
+                                                          "Not Available",
+                                                  yourSelf:
+                                                      data['aboutYourself'] ??
+                                                          "Not Available"),
+                                            ),
+                                          );
+                                        },
+                                        child: Icon(Icons.arrow_forward,
+                                            color: Colors.black),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
