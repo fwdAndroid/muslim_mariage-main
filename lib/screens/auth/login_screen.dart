@@ -345,7 +345,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             "fullName": "",
                             "contactNumber": FirebaseAuth
                                     .instance.currentUser!.phoneNumber ??
-                                "",
+                                "Please Update Your Number In Edit Profile",
                             "location": "INDIA",
                             "status": "pending",
                             "favorite": []
