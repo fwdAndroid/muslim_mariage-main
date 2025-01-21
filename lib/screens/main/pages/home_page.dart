@@ -161,8 +161,8 @@ class _HomePageState extends State<HomePage> {
                                     builder: (builder) => ProfileDetail(
                                         friendMother: data['motherName'] ??
                                             "Not Available",
-                                        friendFather: data[
-                                            'fatherName' ?? "Not Available"],
+                                        friendFather: data['fatherName'] ??
+                                            "Not Available",
                                         profileCreator: data['profileCreator'],
                                         maritalStatus: data['maritalStatus'],
                                         friendPhoto: data['image'] ??
