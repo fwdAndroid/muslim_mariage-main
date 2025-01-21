@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:muslim_mariage/screens/auth/verification_screen.dart';
+import 'package:muslim_mariage/screens/main/main_dashboard.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 
 class UploadPhoto extends StatefulWidget {
@@ -67,7 +67,7 @@ class _UploadPhotoState extends State<UploadPhoto> {
       // Navigate to the next screen
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (builder) => const VerificationScreen()),
+        MaterialPageRoute(builder: (builder) => const MainDashboard()),
       );
     } catch (e) {
       _showAlert('Failed to save photo. Please try again.');

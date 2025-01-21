@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/auth/forgot_password.dart';
 import 'package:muslim_mariage/screens/auth/signup_screen.dart';
-import 'package:muslim_mariage/screens/auth/verification_screen.dart';
 import 'package:muslim_mariage/screens/main/main_dashboard.dart';
 import 'package:muslim_mariage/screens/profile/complete_profile.dart';
 import 'package:muslim_mariage/services/auth_methods.dart';
@@ -230,21 +229,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       .doc(uid)
                       .get();
                   if (userDoc.exists) {
-                    String status = userDoc['status'];
-                    if (status == 'accepted') {
-                      _saveRememberMe();
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => MainDashboard()),
-                      );
-                    } else {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => VerificationScreen()),
-                      );
-                    }
+                    _saveRememberMe();
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (builder) => MainDashboard()),
+                    );
                   } else {
                     showMessageBar("User document not found", context);
                   }
@@ -327,17 +316,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           Map<String, dynamic>? userData =
                               userDoc.data() as Map<String, dynamic>?;
 
-                          String? status = userData?['status'];
                           String? fullName = userData?['fullName'];
 
-                          if (status == 'pending') {
-                            // Navigate to VerificationPage if status is pending
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (builder) => VerificationScreen()),
-                            );
-                          } else if (fullName == null || fullName.isEmpty) {
+                          if (fullName == null || fullName.isEmpty) {
                             // Navigate to CompleteProfile if profile is incomplete
                             Navigator.push(
                               context,
