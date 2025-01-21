@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/auth/login_screen.dart';
 import 'package:muslim_mariage/screens/main/main_dashboard.dart';
 import 'package:muslim_mariage/utils/colors.dart';
@@ -50,8 +51,16 @@ class _SplashScreenState extends State<SplashScreen> {
           Center(
               child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset("assets/logo.png"),
+            child: Image.asset(
+              "assets/logo.png",
+              height: 200,
+              fit: BoxFit.cover,
+            ),
           )),
+          Text(
+              style: GoogleFonts.aboreto(
+                  color: mainColor, fontSize: 22, fontWeight: FontWeight.bold),
+              "Jilani Sunni Rishte")
         ],
       ),
     );
