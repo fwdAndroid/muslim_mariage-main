@@ -346,7 +346,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             "contactNumber": FirebaseAuth
                                     .instance.currentUser!.phoneNumber ??
                                 "",
-                            "location": "",
+                            "location": "INDIA",
                             "status": "pending",
                             "favorite": []
                           });

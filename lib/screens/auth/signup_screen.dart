@@ -19,6 +19,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _reenterController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool passwordVisible = false;
@@ -233,6 +234,31 @@ class _SignupScreenState extends State<SignupScreen> {
                               GoogleFonts.poppins(color: black, fontSize: 12)),
                     ),
                   ),
+                  Container(
+                    margin: const EdgeInsets.only(left: 10, right: 10),
+                    padding: const EdgeInsets.all(8),
+                    child: TextFormField(
+                      controller: _locationController,
+                      style: GoogleFonts.poppins(color: black),
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                          prefixIcon: Icon(
+                            Icons.location_pin,
+                            color: iconColor,
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          errorBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)),
+                          hintText: "Location",
+                          hintStyle:
+                              GoogleFonts.poppins(color: black, fontSize: 12)),
+                    ),
+                  ),
                 ],
               ),
               isLoading
@@ -245,9 +271,10 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: () async {
                         if (_emailController.text.isEmpty ||
                             _passwordController.text.isEmpty ||
-                            _phoneNumberController.text.isEmpty) {
+                            _phoneNumberController.text.isEmpty ||
+                            _locationController.text.isEmpty) {
                           showMessageBar(
-                            "Email & Password & PhoneNumber is Required",
+                            "Email & Password & PhoneNumber & Location is Required",
                             context,
                           );
                         } else {
@@ -260,6 +287,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   phone: _phoneNumberController.text,
                                   confirmPassword: _reenterController.text,
                                   context: context,
+                                  location: _locationController.text,
                                   email: _emailController.text,
                                   password: _passwordController.text);
                               Navigator.push(

@@ -22,6 +22,7 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   TextEditingController qualificationController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   bool _isLoading = false;
   Uint8List? _image;
   String? imageUrl;
@@ -49,6 +50,7 @@ class _EditProfileState extends State<EditProfile> {
       nameController.text = data['fullName'] ?? ''; // Convert int to string
       imageUrl = data['image'];
       qualificationController.text = data['qualification'] ?? '';
+      locationController.text = data['locationController'] ?? '';
     });
   }
 
@@ -171,6 +173,23 @@ class _EditProfileState extends State<EditProfile> {
                 ),
               ),
               const SizedBox(height: 4),
+              // Name Field
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: locationController,
+                  decoration: InputDecoration(
+                    labelText: "Location",
+                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    hintText: "Location",
+                    prefixIcon: const Icon(Icons.location_pin),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 4),
 
               // Description Field
               TextField(
@@ -222,6 +241,7 @@ class _EditProfileState extends State<EditProfile> {
                               "contactNumber":
                                   phoneController.text, // Convert string to int
                               "image": downloadUrl,
+                              "location": locationController.text
                             });
                             showMessageBar(
                                 "Profile Update Successfully", context);

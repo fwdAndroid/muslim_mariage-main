@@ -47,6 +47,7 @@ class AuthMethods {
   Future<String> registerUser(
       {required BuildContext context, // Add BuildContext
       required String confirmPassword,
+      required String location,
       required String email,
       required String password,
       required String phone}) async {
@@ -74,7 +75,7 @@ class AuthMethods {
           "uid": FirebaseAuth.instance.currentUser!.uid,
           "fullName": "",
           "contactNumber": phone,
-          "location": "",
+          "location": location,
           "status": 'pending',
           "favorite": []
         });
