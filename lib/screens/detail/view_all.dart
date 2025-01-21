@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/report/report_user.dart';
 import 'package:muslim_mariage/utils/colors.dart';
@@ -61,6 +62,8 @@ class _ViewAllState extends State<ViewAll> {
                       itemBuilder: (context, index) {
                         final Map<String, dynamic> data =
                             userDocs[index].data() as Map<String, dynamic>;
+                        final birthday = DateTime.parse(data['dob']);
+                        final age = RegisterFunctions().calculateAge(birthday);
                         return Card(
                           child: ListTile(
                             trailing: TextButton(
@@ -79,21 +82,29 @@ class _ViewAllState extends State<ViewAll> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (builder) => ProfileDetail(
-                                      friendPhoto: data['image'] ??
-                                          Image.asset("assets/logo.png"),
-                                      friendName: data['fullName'],
-                                      friendId: data['uid'],
-                                      friendDOB: data['dob'] ?? "Not Available",
-                                      gender: data['gender'],
-                                      sect: data['sect'] ?? "Not Available",
-                                      cast: data['cast'] ?? "Not Available",
-                                      friendPhone: data['contactNumber'] ??
-                                          "Not Available",
-                                      friendQualification:
-                                          data['qualification'] ??
-                                              "Not Available",
-                                      yourSelf: data['aboutYourself'] ??
-                                          "Not Available"),
+                                    location: data['location'],
+                                    friendPhoto: data['image'] ??
+                                        "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
+                                    friendName: data['fullName'],
+                                    friendId: data['uid'],
+                                    friendDOB: age ?? "Not Available",
+                                    gender: data['gender'],
+                                    sect: data['sect'] ?? "Not Available",
+                                    cast: data['cast'] ?? "Not Available",
+                                    friendPhone: data['contactNumber'] ??
+                                        "Not Available",
+                                    maritalStatus: data['maritalStatus'],
+                                    friendQualification:
+                                        data['qualification'] ??
+                                            "Not Available",
+                                    yourSelf: data['aboutYourself'] ??
+                                        "Not Available",
+                                    friendMother:
+                                        data['motherName'] ?? "Not Available",
+                                    friendFather:
+                                        data['fatherName' ?? "Not Available"],
+                                    profileCreator: data['profileCreator'],
+                                  ),
                                 ),
                               );
                             },

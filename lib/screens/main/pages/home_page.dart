@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/detail/view_all.dart';
 import 'package:muslim_mariage/screens/search/search_page.dart';
@@ -89,7 +90,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-            Expanded(
+            SizedBox(
+              height: 460,
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection("users")
@@ -143,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                       final Map<String, dynamic> data =
                           filteredDocs[index].data() as Map<String, dynamic>;
                       final birthday = DateTime.parse(data['dob']);
-                      final age = calculateAge(birthday);
+                      final age = RegisterFunctions().calculateAge(birthday);
                       final List<dynamic> favorites = data['favorite'] ?? [];
                       bool isFavorite = favorites.contains(currentUserId);
                       return GestureDetector(
@@ -152,14 +154,21 @@ class _HomePageState extends State<HomePage> {
                               context,
                               MaterialPageRoute(
                                   builder: (builder) => ProfileDetail(
+                                      friendMother:
+                                          data['motherName'] ?? "Not Available",
+                                      friendFather:
+                                          data['fatherName' ?? "Not Available"],
+                                      profileCreator: data['profileCreator'],
+                                      maritalStatus: data['maritalStatus'],
                                       friendPhoto: data['image'] ??
-                                          Image.asset("assets/logo.png"),
+                                          "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
                                       friendName: data['fullName'],
                                       friendId: data['uid'],
-                                      friendDOB: data['dob'] ?? "Not Available",
+                                      friendDOB: age,
                                       gender: data['gender'],
                                       sect: data['sect'] ?? "Not Available",
                                       cast: data['cast'] ?? "Not Available",
+                                      location: data['location'],
                                       friendPhone: data['contactNumber'] ??
                                           "Not Available",
                                       friendQualification:
@@ -318,15 +327,5 @@ class _HomePageState extends State<HomePage> {
       ),
       // Delete Button at the bottom
     );
-  }
-
-  String calculateAge(DateTime birthday) {
-    final DateTime today = DateTime.now();
-    int age = today.year - birthday.year;
-    if (today.month < birthday.month ||
-        (today.month == birthday.month && today.day < birthday.day)) {
-      age--;
-    }
-    return age.toString();
   }
 }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 
@@ -100,6 +101,8 @@ class _SearchPageState extends State<SearchPage> {
                   itemBuilder: (context, index) {
                     final data =
                         filteredDocs[index].data() as Map<String, dynamic>;
+                    final birthday = DateTime.parse(data['dob']);
+                    final age = RegisterFunctions().calculateAge(birthday);
                     return Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
@@ -142,12 +145,20 @@ class _SearchPageState extends State<SearchPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (builder) => ProfileDetail(
+                                            friendMother: data['motherName'] ??
+                                                "Not Available",
+                                            friendFather: data['fatherName' ??
+                                                "Not Available"],
+                                            profileCreator:
+                                                data['profileCreator'],
+                                            maritalStatus:
+                                                data['maritalStatus'],
+                                            location: data['location'],
                                             friendPhoto: data['image'] ??
-                                                Image.asset("assets/logo.png"),
+                                                "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
                                             friendName: data['fullName'],
                                             friendId: data['uid'],
-                                            friendDOB:
-                                                data['dob'] ?? "Not Available",
+                                            friendDOB: age,
                                             gender: data['gender'],
                                             sect:
                                                 data['sect'] ?? "Not Available",
