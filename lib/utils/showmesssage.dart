@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:muslim_mariage/utils/colors.dart';
 
 pickImage(ImageSource source) async {
   final ImagePicker imagePicker = ImagePicker();
@@ -12,8 +14,13 @@ pickImage(ImageSource source) async {
 }
 
 showMessageBar(String contexts, BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    content: Text(contexts),
-    duration: const Duration(seconds: 3),
-  ));
+  Fluttertoast.showToast(
+    msg: contexts,
+    toastLength: Toast.LENGTH_SHORT,
+    gravity: ToastGravity.BOTTOM,
+    timeInSecForIosWeb: 1,
+    backgroundColor: mainColor,
+    textColor: Colors.white,
+    fontSize: 16.0,
+  );
 }
