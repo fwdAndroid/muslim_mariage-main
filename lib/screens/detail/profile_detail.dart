@@ -48,6 +48,27 @@ class ProfileDetail extends StatefulWidget {
 class _ProfileDetailState extends State<ProfileDetail> {
   var uuid = const Uuid().v4();
   bool isLoading = false;
+  String _userStatus = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserStatus();
+  }
+
+  Future<void> _getCurrentUserStatus() async {
+    final userDoc = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    if (userDoc.exists) {
+      setState(() {
+        _userStatus = userDoc['status'] ?? '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -240,54 +261,69 @@ class _ProfileDetailState extends State<ProfileDetail> {
                         : Center(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: SaveButton(
-                                  title: "Send Chat Request",
-                                  onTap: () async {
-                                    setState(() {
-                                      isLoading = true;
-                                    });
-                                    Fluttertoast.showToast(
-                                        msg:
-                                            "Chat Request Sent to ${widget.friendName}",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.CENTER,
-                                        timeInSecForIosWeb: 1,
-                                        backgroundColor: mainColor,
-                                        textColor: Colors.white,
-                                        fontSize: 16.0);
-                                    await FirebaseFirestore.instance
-                                        .collection("chats")
-                                        .doc(uuid)
-                                        .set({
-                                      "friendName": widget.friendName,
-                                      "friendId": widget.friendId,
-                                      "friendImage": widget.friendPhoto,
-                                      "chatId": uuid,
-                                      "userName": snap['fullName'],
-                                      "userId": FirebaseAuth
-                                          .instance.currentUser!.uid,
-                                      "userPhoto": snap['image'],
-                                      "isAccepted": false,
-                                    });
+                              child: isLoading
+                                  ? Center(
+                                      child: CircularProgressIndicator(
+                                        color: mainColor,
+                                      ),
+                                    )
+                                  : Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: SaveButton(
+                                          title: "Send Chat Request",
+                                          onTap: () async {
+                                            if (_userStatus == 'accepted') {
+                                              setState(() {
+                                                isLoading = true;
+                                              });
 
-                                    setState(() {
-                                      isLoading = false;
-                                    });
+                                              Fluttertoast.showToast(
+                                                msg:
+                                                    "Chat Request Sent to ${widget.friendName}",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.CENTER,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: mainColor,
+                                                textColor: Colors.white,
+                                                fontSize: 16.0,
+                                              );
 
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (builder) => Messages(
-                                    //               userPhoto: snap['image'],
-                                    //               friendName: widget.friendName,
-                                    //               chatId: uuid,
-                                    //               friendId: widget.friendId,
-                                    //               friendImage: widget.friendPhoto,
-                                    //               userId: FirebaseAuth
-                                    //                   .instance.currentUser!.uid,
-                                    //               userName: snap['fullName'],
-                                    //             )));
-                                  }),
+                                              await FirebaseFirestore.instance
+                                                  .collection("chats")
+                                                  .doc(uuid)
+                                                  .set({
+                                                "friendName": widget.friendName,
+                                                "friendId": widget.friendId,
+                                                "friendImage":
+                                                    widget.friendPhoto,
+                                                "chatId": uuid,
+                                                "userName": snap['fullName'],
+                                                "userId": FirebaseAuth
+                                                    .instance.currentUser!.uid,
+                                                "userPhoto": snap['image'],
+                                                "isAccepted": false,
+                                              });
+
+                                              setState(() {
+                                                isLoading = false;
+                                              });
+                                            } else {
+                                              Fluttertoast.showToast(
+                                                msg:
+                                                    "You are not verified by the admin. So cannot send the chat request.",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                fontSize: 16.0,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
                     Padding(

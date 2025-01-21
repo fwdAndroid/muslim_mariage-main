@@ -102,7 +102,7 @@ class _ViewAllState extends State<ViewAll> {
                                     friendMother:
                                         data['motherName'] ?? "Not Available",
                                     friendFather:
-                                        data['fatherName' ?? "Not Available"],
+                                        data['fatherName'] ?? "Not Available",
                                     profileCreator: data['profileCreator'],
                                   ),
                                 ),
