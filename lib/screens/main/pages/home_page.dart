@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/detail/view_all.dart';
 import 'package:muslim_mariage/screens/search/search_page.dart';
@@ -17,6 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TextEditingController _emailController = TextEditingController();
   String _searchText = '';
+  final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
   @override
   void initState() {
@@ -81,7 +84,6 @@ class _HomePageState extends State<HomePage> {
                   onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (builder) => ViewAll()));
-                    // View all action
                   },
                   child: Text("View all"),
                 ),
@@ -140,6 +142,10 @@ class _HomePageState extends State<HomePage> {
                         (context, index, percentThresholdX, percentThresholdY) {
                       final Map<String, dynamic> data =
                           filteredDocs[index].data() as Map<String, dynamic>;
+                      final birthday = DateTime.parse(data['dob']);
+                      final age = calculateAge(birthday);
+                      final List<dynamic> favorites = data['favorite'] ?? [];
+                      bool isFavorite = favorites.contains(currentUserId);
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
@@ -163,76 +169,137 @@ class _HomePageState extends State<HomePage> {
                                           "Not Available")));
                         },
                         child: Card(
+                          color: colorWhite,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Stack(
                             children: [
                               Expanded(
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(8),
                                   ),
-                                  child: Image.network(
-                                    data['image'],
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
+                                  child: data['image'] == null ||
+                                          data['image'].isEmpty
+                                      ? Image.asset("assets/logo.png",
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity)
+                                      : Image.network(data['image'],
+                                          fit: BoxFit.cover,
+                                          width: double.infinity,
+                                          height: double.infinity),
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          data['fullName'],
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                    Text(
+                                      '${data['fullName']}',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 22,
+                                        color: black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      '$age yrs',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      data['sect'] + (" Islam"),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      data['maritalStatus'],
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(
+                                      data['location'],
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: IconButton(
+                                        iconSize: 50,
+                                        onPressed: () async {
+                                          final docRef = FirebaseFirestore
+                                              .instance
+                                              .collection("users")
+                                              .doc(data[
+                                                  'uid']); // Reference the user document
+
+                                          // Check if the item is marked as favorite
+                                          if (isFavorite) {
+                                            // If already favorited, remove current user ID from the favorites list
+                                            await docRef.update({
+                                              "favorite":
+                                                  FieldValue.arrayRemove(
+                                                      [currentUserId]),
+                                            });
+
+                                            setState(() {
+                                              // Update local state to reflect the new favorite status
+                                              isFavorite =
+                                                  false; // Unmark as favorite
+                                            });
+
+                                            Fluttertoast.showToast(
+                                              backgroundColor: red,
+                                              msg:
+                                                  "Removed ${data['fullName']} from your favorite list",
+                                              textColor:
+                                                  colorWhite, // Show a red toast message
+                                            );
+                                          } else {
+                                            // If not favorited, add current user ID to the favorites list
+                                            await docRef.update({
+                                              "favorite": FieldValue.arrayUnion(
+                                                  [currentUserId]),
+                                            });
+
+                                            setState(() {
+                                              // Update local state to reflect the new favorite status
+                                              isFavorite =
+                                                  true; // Mark as favorite
+                                            });
+
+                                            Fluttertoast.showToast(
+                                              backgroundColor: mainColor,
+                                              msg:
+                                                  "Added ${data['fullName']} to your favorite list",
+                                              textColor:
+                                                  colorWhite, // Show a green toast message
+                                            );
+                                          }
+                                        },
+                                        icon: Icon(
+                                          Icons.favorite,
+                                          color: isFavorite
+                                              ? Colors.red
+                                              : iconColor, // Change icon color based on favorite status
                                         ),
-                                        Text(data['dob']),
-                                      ],
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (builder) => ProfileDetail(
-                                                    friendPhoto: data[
-                                                            'image'] ??
-                                                        Image.asset(
-                                                            "assets/logo.png"),
-                                                    friendName:
-                                                        data['fullName'],
-                                                    friendId: data['uid'],
-                                                    friendDOB: data['dob'] ??
-                                                        "Not Available",
-                                                    gender: data['gender'],
-                                                    sect: data['sect'] ??
-                                                        "Not Available",
-                                                    cast: data['cast'] ??
-                                                        "Not Available",
-                                                    friendPhone:
-                                                        data['contactNumber'] ??
-                                                            "Not Available",
-                                                    friendQualification:
-                                                        data['qualification'] ??
-                                                            "Not Available",
-                                                    yourSelf:
-                                                        data['aboutYourself'] ??
-                                                            "Not Available")));
-                                      },
-                                      child: Icon(Icons.arrow_forward,
-                                          color: Colors.black),
-                                    ),
+                                      ),
+                                    )
                                   ],
                                 ),
                               ),
@@ -249,6 +316,17 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      // Delete Button at the bottom
     );
+  }
+
+  String calculateAge(DateTime birthday) {
+    final DateTime today = DateTime.now();
+    int age = today.year - birthday.year;
+    if (today.month < birthday.month ||
+        (today.month == birthday.month && today.day < birthday.day)) {
+      age--;
+    }
+    return age.toString();
   }
 }

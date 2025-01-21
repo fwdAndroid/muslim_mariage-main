@@ -348,6 +348,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "",
                             "location": "",
                             "status": "pending",
+                            "favorite": []
                           });
 
                           // Navigate to VerificationPage for new users
