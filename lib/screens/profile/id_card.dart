@@ -4,17 +4,17 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:muslim_mariage/screens/profile/id_card.dart';
+import 'package:muslim_mariage/screens/main/main_dashboard.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 
-class UploadPhoto extends StatefulWidget {
-  const UploadPhoto({super.key});
+class IDCard extends StatefulWidget {
+  const IDCard({super.key});
 
   @override
-  State<UploadPhoto> createState() => _UploadPhotoState();
+  State<IDCard> createState() => _IDCardState();
 }
 
-class _UploadPhotoState extends State<UploadPhoto> {
+class _IDCardState extends State<IDCard> {
   File? _bridePhoto;
   final ImagePicker _picker = ImagePicker();
 
@@ -46,11 +46,11 @@ class _UploadPhotoState extends State<UploadPhoto> {
 
       try {
         // Upload the selected photo to Firebase Storage
-        bridePhotoUrl = await _uploadPhoto(_bridePhoto!, 'bridePhoto');
+        bridePhotoUrl = await _IDCard(_bridePhoto!, 'idcard');
         Navigator.pop(context); // Close the loading indicator
       } catch (e) {
         Navigator.pop(context); // Close the loading indicator
-        _showAlert('Failed to upload photo. Please try again.');
+        _showAlert('Failed to upload id card. Please try again.');
         return;
       }
     }
@@ -61,20 +61,20 @@ class _UploadPhotoState extends State<UploadPhoto> {
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .update({
-        'image': bridePhotoUrl,
+        'idCard': bridePhotoUrl,
       });
 
       // Navigate to the next screen
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (builder) => const IDCard()),
+        MaterialPageRoute(builder: (builder) => const MainDashboard()),
       );
     } catch (e) {
       _showAlert('Failed to save photo. Please try again.');
     }
   }
 
-  Future<String> _uploadPhoto(File file, String photoType) async {
+  Future<String> _IDCard(File file, String photoType) async {
     String fileName = '$photoType-${DateTime.now().millisecondsSinceEpoch}';
     UploadTask uploadTask =
         FirebaseStorage.instance.ref('uploads/$fileName').putFile(file);

@@ -18,7 +18,7 @@ class CompleteProfile extends StatefulWidget {
 class _CompleteProfileState extends State<CompleteProfile> {
   String _selectedSect = 'Sunni'; // Default value
   String _selectedGender = 'Male'; // Default value
-  String _selectedMaritalStatus = 'Single'; // Default value
+  String _selectedMaritalStatus = 'UnMarried'; // Default value
   String _profileCreator = 'Self';
 
   final TextEditingController _fatherController = TextEditingController();
@@ -31,7 +31,10 @@ class _CompleteProfileState extends State<CompleteProfile> {
   final TextEditingController _yourselfController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _baradhariController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+
   final bool _isLoading = false; // Track loading state
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,11 +70,15 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   ['Self', 'Father', 'Mother', 'Brother', "Uncle"],
                   initialValue: _profileCreator),
               const SizedBox(height: 12),
+              _buildTextField('Full Name', _userNameController, Icons.person),
+              const SizedBox(height: 12),
               _buildTextField('Father Name', _fatherController, Icons.person),
               const SizedBox(height: 12),
               _buildTextField('Mother Name', _motherController, Icons.person),
               const SizedBox(height: 12),
-              _buildTextField('Full Name', _userNameController, Icons.person),
+              _buildTextField('Cast', _baradhariController, null),
+              const SizedBox(height: 12),
+              _buildTextField('Height', _heightController, null),
               const SizedBox(height: 12),
               TextField(
                 onTap: () async {
@@ -83,7 +90,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   );
                   if (picked != null) {
                     setState(() {
-                      _dobController.text = DateFormat('yyyy-MM-dd')
+                      _dobController.text = DateFormat('dd/MM/yy')
                           .format(picked); // Format the date
                     });
                   }
@@ -102,19 +109,17 @@ class _CompleteProfileState extends State<CompleteProfile> {
                     prefixIcon: const Icon(Icons.date_range)),
               ),
               const SizedBox(height: 12),
-              _buildDropdownField('Your Sect', ['Sunni', 'Shia'],
+              _buildDropdownField('Your Sect', ['Sunni'],
                   initialValue: _selectedSect),
               const SizedBox(height: 12),
               _buildDropdownField('Gender', ['Male', 'Female'],
                   initialValue: _selectedGender),
               const SizedBox(height: 12),
               _buildDropdownField('Marital Status',
-                  ['Single', 'Married', 'Divorced', 'Widowed'],
+                  ['UnMarried', 'Married', 'Divorced', 'Widowed'],
                   initialValue: _selectedMaritalStatus),
               const SizedBox(height: 12),
               _buildTextField('Qualification', _qualificationController, null),
-              const SizedBox(height: 12),
-              _buildTextField('Cast', _baradhariController, null),
               const SizedBox(height: 12),
               _buildTextField(
                   'Job Occupation', _jobOccupationController, Icons.work),
@@ -151,6 +156,14 @@ class _CompleteProfileState extends State<CompleteProfile> {
       return;
     }
 
+    // String address = countryValue +
+    //     " " +
+    //     stateValue +
+    //     " " +
+    //     cityValue +
+    //     " " +
+    //     locationController.text;
+
     FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -166,7 +179,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
       'qualification': _qualificationController.text,
       'jobOccupation': _jobOccupationController.text,
       'aboutYourself': _yourselfController.text,
-      'cast': _baradhariController.text
+      'cast': _baradhariController.text,
+      "height": _heightController.text,
     }).then((_) {
       showMessageBar("Profile Created Successfully", context);
       Navigator.push(context,

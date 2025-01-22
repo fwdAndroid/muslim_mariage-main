@@ -1,3 +1,4 @@
+import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/functions.dart';
@@ -39,6 +40,10 @@ class _SignupScreenState extends State<SignupScreen> {
           !passwordConfrimVisible; // Toggle the showPassword flag
     });
   }
+
+  String countryValue = "";
+  String stateValue = "";
+  String cityValue = "";
 
   @override
   Widget build(BuildContext context) {
@@ -237,26 +242,47 @@ class _SignupScreenState extends State<SignupScreen> {
                   Container(
                     margin: const EdgeInsets.only(left: 10, right: 10),
                     padding: const EdgeInsets.all(8),
-                    child: TextFormField(
-                      controller: _locationController,
-                      style: GoogleFonts.poppins(color: black),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.location_pin,
-                            color: iconColor,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              "Location",
+                              style: GoogleFonts.poppins(
+                                  color: black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14),
+                            ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          errorBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          hintText: "Location",
-                          hintStyle:
-                              GoogleFonts.poppins(color: black, fontSize: 12)),
+                          SelectState(
+                            onCountryChanged: (value) {
+                              setState(() {
+                                countryValue = value;
+                              });
+                            },
+                            onStateChanged: (value) {
+                              setState(() {
+                                stateValue = value;
+                              });
+                            },
+                            onCityChanged: (value) {
+                              setState(() {
+                                cityValue = value;
+                              });
+                            },
+                          ),
+                          TextFormField(
+                            controller: _locationController,
+                            decoration: InputDecoration(
+                              hintText: 'Address',
+                              border: const OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -282,12 +308,19 @@ class _SignupScreenState extends State<SignupScreen> {
                             isLoading = true;
                           });
                           if (_formKey.currentState!.validate()) {
+                            String address = countryValue +
+                                " " +
+                                stateValue +
+                                " " +
+                                cityValue +
+                                " " +
+                                _locationController.text;
                             try {
                               await AuthMethods().registerUser(
                                   phone: _phoneNumberController.text,
                                   confirmPassword: _reenterController.text,
                                   context: context,
-                                  location: _locationController.text,
+                                  location: address,
                                   email: _emailController.text,
                                   password: _passwordController.text);
                               Navigator.push(
