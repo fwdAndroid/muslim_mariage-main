@@ -183,7 +183,6 @@ class _HomePageState extends State<HomePage> {
                                             "Not Available")));
                           },
                           child: Card(
-                            color: colorWhite,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -215,7 +214,7 @@ class _HomePageState extends State<HomePage> {
                                         '${data['fullName']}',
                                         style: GoogleFonts.poppins(
                                           fontSize: 22,
-                                          color: black,
+                                          color: textColor,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -223,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                                         '$age yrs',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          color: black,
+                                          color: textColor,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -231,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                                         data['sect'] + (" Islam"),
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          color: black,
+                                          color: textColor,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -239,7 +238,7 @@ class _HomePageState extends State<HomePage> {
                                         data['maritalStatus'],
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          color: black,
+                                          color: textColor,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -247,7 +246,7 @@ class _HomePageState extends State<HomePage> {
                                         data['location'],
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
-                                          color: black,
+                                          color: textColor,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),

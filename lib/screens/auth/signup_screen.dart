@@ -21,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _reenterController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _locationControllerA = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool passwordVisible = false;
@@ -257,22 +258,12 @@ class _SignupScreenState extends State<SignupScreen> {
                                   fontSize: 14),
                             ),
                           ),
-                          SelectState(
-                            onCountryChanged: (value) {
-                              setState(() {
-                                countryValue = value;
-                              });
-                            },
-                            onStateChanged: (value) {
-                              setState(() {
-                                stateValue = value;
-                              });
-                            },
-                            onCityChanged: (value) {
-                              setState(() {
-                                cityValue = value;
-                              });
-                            },
+                          TextFormField(
+                            controller: _locationControllerA,
+                            decoration: InputDecoration(
+                              hintText: 'Enter State',
+                              border: const OutlineInputBorder(),
+                            ),
                           ),
                           TextFormField(
                             controller: _locationController,
@@ -298,6 +289,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         if (_emailController.text.isEmpty ||
                             _passwordController.text.isEmpty ||
                             _phoneNumberController.text.isEmpty ||
+                            _locationControllerA.text.isEmpty ||
                             _locationController.text.isEmpty) {
                           showMessageBar(
                             "Email & Password & PhoneNumber & Location is Required",
@@ -308,12 +300,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             isLoading = true;
                           });
                           if (_formKey.currentState!.validate()) {
-                            String address = countryValue +
-                                " " +
-                                stateValue +
-                                " " +
-                                cityValue +
-                                " " +
+                            String address = _locationControllerA.text +
                                 _locationController.text;
                             try {
                               await AuthMethods().registerUser(

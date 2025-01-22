@@ -16,7 +16,7 @@ class CompleteProfile extends StatefulWidget {
 }
 
 class _CompleteProfileState extends State<CompleteProfile> {
-  String _selectedSect = 'Sunni'; // Default value
+  String _selectedSect = 'MASLAK E ALA HAZRAT'; // Default value
   String _selectedGender = 'Male'; // Default value
   String _selectedMaritalStatus = 'UnMarried'; // Default value
   String _profileCreator = 'Self';
@@ -109,7 +109,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
                     prefixIcon: const Icon(Icons.date_range)),
               ),
               const SizedBox(height: 12),
-              _buildDropdownField('Your Sect', ['Sunni'],
+              _buildDropdownField('Your Sect', ['MASLAK E ALA HAZRAT'],
                   initialValue: _selectedSect),
               const SizedBox(height: 12),
               _buildDropdownField('Gender', ['Male', 'Female'],

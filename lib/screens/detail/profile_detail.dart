@@ -49,11 +49,28 @@ class _ProfileDetailState extends State<ProfileDetail> {
   var uuid = const Uuid().v4();
   bool isLoading = false;
   String _userStatus = '';
+  bool hasPendingRequest = false;
 
   @override
   void initState() {
     super.initState();
     _getCurrentUserStatus();
+    _checkPendingRequest();
+  }
+
+  Future<void> _checkPendingRequest() async {
+    final existingChatRequest = await FirebaseFirestore.instance
+        .collection("chats")
+        .where("userId", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .where("friendId", isEqualTo: widget.friendId)
+        .get();
+
+    if (existingChatRequest.docs.isNotEmpty) {
+      final chatData = existingChatRequest.docs.first.data();
+      setState(() {
+        hasPendingRequest = !chatData['isAccepted']; // Check if it's pending
+      });
+    }
   }
 
   bool isButtonDisabled = false; // Track button state
@@ -254,71 +271,64 @@ class _ProfileDetailState extends State<ProfileDetail> {
                       ),
                     ),
                     isLoading
-                        ? Center(
-                            child: CircularProgressIndicator(
-                              color: mainColor,
-                            ),
+                        ? const Center(
+                            child: CircularProgressIndicator(),
                           )
-                        : Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: SaveButton(
-                                title: "Send Chat Request",
-                                onTap: isButtonDisabled
-                                    ? null // Disable the button by making onTap null
-                                    : () async {
-                                        if (_userStatus == 'accepted') {
-                                          setState(() {
-                                            isLoading = true;
-                                            isButtonDisabled =
-                                                true; // Disable button after click
-                                          });
+                        : hasPendingRequest
+                            ? Center(
+                                child: Text(
+                                  "Chat request already sent. Please wait for acceptance or rejection.",
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
+                              )
+                            : Center(
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (_userStatus == 'accepted') {
+                                      setState(() {
+                                        isLoading = true;
+                                      });
 
-                                          Fluttertoast.showToast(
-                                            msg:
-                                                "Chat Request Sent to ${widget.friendName}",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: mainColor,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0,
-                                          );
+                                      Fluttertoast.showToast(
+                                        msg: "Chat request sent successfully.",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        backgroundColor: Colors.green,
+                                        textColor: Colors.white,
+                                      );
 
-                                          await FirebaseFirestore.instance
-                                              .collection("chats")
-                                              .doc(uuid)
-                                              .set({
-                                            "friendName": widget.friendName,
-                                            "friendId": widget.friendId,
-                                            "friendImage": widget.friendPhoto,
-                                            "chatId": uuid,
-                                            "userName": snap['fullName'],
-                                            "userId": FirebaseAuth
-                                                .instance.currentUser!.uid,
-                                            "userPhoto": snap['image'],
-                                            "isAccepted": false,
-                                          });
+                                      await FirebaseFirestore.instance
+                                          .collection("chats")
+                                          .doc(uuid)
+                                          .set({
+                                        "friendName": widget.friendName,
+                                        "friendId": widget.friendId,
+                                        "friendImage": widget.friendPhoto,
+                                        "chatId": uuid,
+                                        "userName": _userStatus,
+                                        "userId": FirebaseAuth
+                                            .instance.currentUser!.uid,
+                                        "isAccepted": false,
+                                      });
 
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        } else {
-                                          Fluttertoast.showToast(
-                                            msg:
-                                                "You are not verified by the admin. So cannot send the chat request.",
-                                            toastLength: Toast.LENGTH_SHORT,
-                                            gravity: ToastGravity.BOTTOM,
-                                            timeInSecForIosWeb: 1,
-                                            backgroundColor: Colors.red,
-                                            textColor: Colors.white,
-                                            fontSize: 16.0,
-                                          );
-                                        }
-                                      },
+                                      setState(() {
+                                        isLoading = false;
+                                        hasPendingRequest = true;
+                                      });
+                                    } else {
+                                      Fluttertoast.showToast(
+                                        msg:
+                                            "You are not verified by the admin.",
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                      );
+                                    }
+                                  },
+                                  child: const Text("Send Chat Request"),
+                                ),
                               ),
-                            ),
-                          ),
 
                     Padding(
                       padding: const EdgeInsets.all(8.0),
