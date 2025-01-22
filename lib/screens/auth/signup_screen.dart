@@ -1,4 +1,3 @@
-import 'package:country_state_city_picker/country_state_city_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/functions.dart';
@@ -41,10 +40,6 @@ class _SignupScreenState extends State<SignupScreen> {
           !passwordConfrimVisible; // Toggle the showPassword flag
     });
   }
-
-  String countryValue = "";
-  String stateValue = "";
-  String cityValue = "";
 
   @override
   Widget build(BuildContext context) {

@@ -32,6 +32,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
   final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _baradhariController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
 
   final bool _isLoading = false; // Track loading state
 
@@ -79,6 +80,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
               _buildTextField('Cast', _baradhariController, null),
               const SizedBox(height: 12),
               _buildTextField('Height', _heightController, null),
+              const SizedBox(height: 12),
+              _buildTextField('Monthly Salary', _controller, null),
               const SizedBox(height: 12),
               TextField(
                 onTap: () async {
@@ -151,6 +154,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
         _dobController.text.isEmpty ||
         _qualificationController.text.isEmpty ||
         _jobOccupationController.text.isEmpty ||
+        _controller.text.isEmpty ||
         _yourselfController.text.isEmpty) {
       _showAlert('Please fill all fields before continuing.');
       return;
@@ -181,6 +185,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
       'aboutYourself': _yourselfController.text,
       'cast': _baradhariController.text,
       "height": _heightController.text,
+      "salary": _controller.text
     }).then((_) {
       showMessageBar("Profile Created Successfully", context);
       Navigator.push(context,
