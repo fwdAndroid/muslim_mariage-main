@@ -111,7 +111,7 @@ class _IDCardState extends State<IDCard> {
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                'Upload Photos',
+                'Upload ID Card',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -120,7 +120,7 @@ class _IDCardState extends State<IDCard> {
             ),
             const SizedBox(height: 8),
             const Text(
-              "Upload photos for the bride and groom.",
+              "Upload photos of your id card.",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -130,7 +130,7 @@ class _IDCardState extends State<IDCard> {
             Expanded(
               child: Column(
                 children: [
-                  const Text('Bride Photo'),
+                  const Text('ID Card'),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: () => _pickImage(true),

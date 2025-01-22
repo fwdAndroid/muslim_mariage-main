@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:muslim_mariage/screens/chat/video_call_page.dart';
 import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
@@ -49,39 +48,73 @@ class _MessagesState extends State<Messages> {
         : "${widget.userId}-${widget.friendId}";
   }
 
-  Future<void> pickAndUploadImage() async {
+  Future<void> pickAndPreviewImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       final file = File(pickedFile.path);
-      final fileName = DateTime.now().millisecondsSinceEpoch.toString();
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('chat_images')
-          .child(widget.chatId)
-          .child(fileName);
 
-      final uploadTask = storageRef.putFile(file);
+      // Show a dialog for preview and approval
+      bool? userApproved = await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Preview Image"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.file(file, fit: BoxFit.cover, height: 200),
+              const SizedBox(height: 10),
+              const Text("Do you want to send this image?")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false), // User canceled
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true), // User approved
+              child: const Text("Send"),
+            ),
+          ],
+        ),
+      );
 
-      uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
-        setState(() {
-          uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes!;
-        });
-      });
-
-      try {
-        final snapshot = await uploadTask;
-        final downloadUrl = await snapshot.ref.getDownloadURL();
-        sendMessage(downloadUrl, 1); // Send the image message
-      } catch (e) {
-        print('Error uploading image: $e');
+      // If user approved, upload the image
+      if (userApproved == true) {
+        uploadImage(file);
       }
-
-      setState(() {
-        uploadProgress = 0.0; // Reset progress after upload
-      });
     }
+  }
+
+  Future<void> uploadImage(File file) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('chat_images')
+        .child(widget.chatId)
+        .child(fileName);
+
+    final uploadTask = storageRef.putFile(file);
+
+    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+      setState(() {
+        uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes!;
+      });
+    });
+
+    try {
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      sendMessage(downloadUrl, 1); // Send the image message
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+
+    setState(() {
+      uploadProgress = 0.0; // Reset progress after upload
+    });
   }
 
   void sendMessage(String content, int type) {
@@ -131,7 +164,6 @@ class _MessagesState extends State<Messages> {
 
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-    // Determine the fields to update for both participants
     final String fieldToUpdateForCurrentUser =
         (currentUserId == widget.friendId)
             ? 'lastMessageByCustomer'
@@ -144,12 +176,10 @@ class _MessagesState extends State<Messages> {
     if (chatDocSnapshot.exists) {
       String displayMessage = messageType == 1 ? 'Image sent' : messageContent;
 
-      // Update both users' last messages
       await chatDocRef.update({
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
         fieldToUpdateForCurrentUser: displayMessage,
-        fieldToUpdateForOtherUser:
-            displayMessage, // Update the other user as well
+        fieldToUpdateForOtherUser: displayMessage,
       }).catchError((error) {
         print("Failed to update last message: $error");
       });
@@ -229,7 +259,7 @@ class _MessagesState extends State<Messages> {
                         child: ListView.builder(
                           padding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 14),
-                          reverse: false, // Reverse the order of messages
+                          reverse: false,
                           controller: scrollController,
                           shrinkWrap: true,
                           itemCount: snapshot.data!.docs.length,
@@ -265,51 +295,6 @@ class _MessagesState extends State<Messages> {
                                               fit: BoxFit.cover,
                                               height: 160,
                                               width: 200,
-                                              loadingBuilder:
-                                                  (BuildContext context,
-                                                      Widget child,
-                                                      ImageChunkEvent?
-                                                          loadingProgress) {
-                                                if (loadingProgress == null) {
-                                                  return child; // Image is fully loaded
-                                                } else {
-                                                  return Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      CircularProgressIndicator(
-                                                        value: uploadProgress,
-                                                        backgroundColor:
-                                                            Colors.grey[300],
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                    Color>(
-                                                                mainColor),
-                                                      ),
-                                                      const SizedBox(
-                                                          height: 10),
-                                                      Text(
-                                                        "${(uploadProgress * 100).toStringAsFixed(0)}% Uploading...",
-                                                        style: TextStyle(
-                                                          fontSize: 14,
-                                                          color:
-                                                              Colors.grey[600],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  );
-                                                }
-                                              },
-                                              errorBuilder:
-                                                  (context, error, stackTrace) {
-                                                return Text(
-                                                  'Failed to load image',
-                                                  style: TextStyle(
-                                                    color: Colors.red,
-                                                  ),
-                                                );
-                                              },
                                             )
                                           : Text(
                                               ds.get("content"),
@@ -364,7 +349,7 @@ class _MessagesState extends State<Messages> {
                   ),
                   IconButton(
                     icon: Icon(Icons.photo, color: mainColor),
-                    onPressed: pickAndUploadImage,
+                    onPressed: pickAndPreviewImage,
                   ),
                   const SizedBox(width: 10),
                   FloatingActionButton(
