@@ -35,7 +35,8 @@ class _UploadPhotoState extends State<UploadPhoto> {
 
     // If no photo is selected, use a default placeholder URL or handle it appropriately
     if (_bridePhoto == null) {
-      bridePhotoUrl = "assets/logo.png"; // Default placeholder image path
+      bridePhotoUrl =
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVLlEYDLjwRY2NOKntxz5kIgZnDUwmZOAlQw&s"; // Default placeholder image path
     } else {
       // Show a loading indicator
       showDialog(

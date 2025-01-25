@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart'; // Import intl package
 import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/detail/view_all.dart';
@@ -22,6 +23,7 @@ class _HomePageState extends State<HomePage> {
   String _searchText = '';
   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
   String _currentUserGender = '';
+
   @override
   void initState() {
     super.initState();
@@ -40,7 +42,7 @@ class _HomePageState extends State<HomePage> {
           elevation: 0,
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
-          title: Text(
+          title: const Text(
             "Find Your Match ?",
             style: TextStyle(
               color: Colors.black,
@@ -56,38 +58,37 @@ class _HomePageState extends State<HomePage> {
               TextField(
                 readOnly: true,
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (builder) => SearchPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (builder) => const SearchPage()));
                 },
                 controller: _emailController,
-                onChanged: (value) {
-                  setState(() {
-                    _searchText = value;
-                  });
-                },
                 decoration: InputDecoration(
                   hintText: "Search",
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
                     borderSide: BorderSide(color: mainColor),
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Best Match",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (builder) => ViewAll()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (builder) => const ViewAll()));
                     },
-                    child: Text("View all"),
+                    child: const Text("View all"),
                   ),
                 ],
               ),
@@ -109,7 +110,7 @@ class _HomePageState extends State<HomePage> {
                       );
                     }
                     if (snapshot.data!.docs.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "No User Available",
                           style: TextStyle(color: black),
@@ -134,7 +135,7 @@ class _HomePageState extends State<HomePage> {
                     }).toList();
 
                     if (filteredDocs.isEmpty) {
-                      return Center(
+                      return const Center(
                         child: Text(
                           "No Results Found",
                           style: TextStyle(color: black),
@@ -149,10 +150,24 @@ class _HomePageState extends State<HomePage> {
                           percentThresholdY) {
                         final Map<String, dynamic> data =
                             filteredDocs[index].data() as Map<String, dynamic>;
-                        final birthday = DateTime.parse(data['dob']);
-                        final age = RegisterFunctions().calculateAge(birthday);
+
+                        // Validate and parse 'dob'
+                        final dateFormat =
+                            DateFormat('MM/dd/yy'); // Adjust as needed
+                        DateTime? birthday;
+                        try {
+                          birthday = dateFormat.parse(data['dob']);
+                        } catch (e) {
+                          birthday = null; // Fallback for invalid dates
+                        }
+
+                        final age = birthday != null
+                            ? RegisterFunctions().calculateAge(birthday)
+                            : "Unknown";
+
                         final List<dynamic> favorites = data['favorite'] ?? [];
                         bool isFavorite = favorites.contains(currentUserId);
+
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -189,7 +204,7 @@ class _HomePageState extends State<HomePage> {
                             child: Stack(
                               children: [
                                 ClipRRect(
-                                  borderRadius: BorderRadius.vertical(
+                                  borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(8),
                                   ),
                                   child: data['image'] == null ||
@@ -227,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                                         ),
                                       ),
                                       Text(
-                                        data['sect'] + (" Islam"),
+                                        data['sect'] + " Islam",
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           color: textColor,
@@ -257,12 +272,9 @@ class _HomePageState extends State<HomePage> {
                                             final docRef = FirebaseFirestore
                                                 .instance
                                                 .collection("users")
-                                                .doc(data[
-                                                    'uid']); // Reference the user document
+                                                .doc(data['uid']);
 
-                                            // Check if the item is marked as favorite
                                             if (isFavorite) {
-                                              // If already favorited, remove current user ID from the favorites list
                                               await docRef.update({
                                                 "favorite":
                                                     FieldValue.arrayRemove(
@@ -270,20 +282,16 @@ class _HomePageState extends State<HomePage> {
                                               });
 
                                               setState(() {
-                                                // Update local state to reflect the new favorite status
-                                                isFavorite =
-                                                    false; // Unmark as favorite
+                                                isFavorite = false;
                                               });
 
                                               Fluttertoast.showToast(
                                                 backgroundColor: red,
                                                 msg:
                                                     "Removed ${data['fullName']} from your favorite list",
-                                                textColor:
-                                                    colorWhite, // Show a red toast message
+                                                textColor: colorWhite,
                                               );
                                             } else {
-                                              // If not favorited, add current user ID to the favorites list
                                               await docRef.update({
                                                 "favorite":
                                                     FieldValue.arrayUnion(
@@ -291,17 +299,14 @@ class _HomePageState extends State<HomePage> {
                                               });
 
                                               setState(() {
-                                                // Update local state to reflect the new favorite status
-                                                isFavorite =
-                                                    true; // Mark as favorite
+                                                isFavorite = true;
                                               });
 
                                               Fluttertoast.showToast(
                                                 backgroundColor: mainColor,
                                                 msg:
                                                     "Added ${data['fullName']} to your favorite list",
-                                                textColor:
-                                                    colorWhite, // Show a green toast message
+                                                textColor: colorWhite,
                                               );
                                             }
                                           },
@@ -309,7 +314,7 @@ class _HomePageState extends State<HomePage> {
                                             Icons.favorite,
                                             color: isFavorite
                                                 ? Colors.red
-                                                : iconColor, // Change icon color based on favorite status
+                                                : iconColor,
                                           ),
                                         ),
                                       )

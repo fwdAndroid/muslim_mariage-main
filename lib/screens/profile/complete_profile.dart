@@ -155,7 +155,9 @@ class _CompleteProfileState extends State<CompleteProfile> {
         _qualificationController.text.isEmpty ||
         _jobOccupationController.text.isEmpty ||
         _controller.text.isEmpty ||
-        _yourselfController.text.isEmpty) {
+        _yourselfController.text.isEmpty ||
+        _baradhariController.text.isEmpty ||
+        _heightController.text.isEmpty) {
       _showAlert('Please fill all fields before continuing.');
       return;
     }

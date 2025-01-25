@@ -282,52 +282,52 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                 ),
                               )
                             : Center(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (_userStatus == 'accepted') {
-                                      setState(() {
-                                        isLoading = true;
-                                      });
+                                child: SaveButton(
+                                    onTap: () async {
+                                      if (_userStatus == 'accepted') {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
 
-                                      Fluttertoast.showToast(
-                                        msg: "Chat request sent successfully.",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.BOTTOM,
-                                        backgroundColor: Colors.green,
-                                        textColor: Colors.white,
-                                      );
+                                        Fluttertoast.showToast(
+                                          msg:
+                                              "Chat request sent successfully.",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: Colors.green,
+                                          textColor: Colors.white,
+                                        );
 
-                                      await FirebaseFirestore.instance
-                                          .collection("chats")
-                                          .doc(uuid)
-                                          .set({
-                                        "friendName": widget.friendName,
-                                        "friendId": widget.friendId,
-                                        "friendImage": widget.friendPhoto,
-                                        "chatId": uuid,
-                                        "userName": _userStatus,
-                                        "userId": FirebaseAuth
-                                            .instance.currentUser!.uid,
-                                        "isAccepted": false,
-                                      });
+                                        await FirebaseFirestore.instance
+                                            .collection("chats")
+                                            .doc(uuid)
+                                            .set({
+                                          "friendName": widget.friendName,
+                                          "friendId": widget.friendId,
+                                          "friendImage": widget.friendPhoto,
+                                          "chatId": uuid,
+                                          "userName": _userStatus,
+                                          "userId": FirebaseAuth
+                                              .instance.currentUser!.uid,
+                                          "isAccepted": false,
+                                        });
 
-                                      setState(() {
-                                        isLoading = false;
-                                        hasPendingRequest = true;
-                                      });
-                                    } else {
-                                      Fluttertoast.showToast(
-                                        msg:
-                                            "You are not verified by the admin.",
-                                        toastLength: Toast.LENGTH_SHORT,
-                                        gravity: ToastGravity.BOTTOM,
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                      );
-                                    }
-                                  },
-                                  child: const Text("Send Chat Request"),
-                                ),
+                                        setState(() {
+                                          isLoading = false;
+                                          hasPendingRequest = true;
+                                        });
+                                      } else {
+                                        Fluttertoast.showToast(
+                                          msg:
+                                              "You are not verified by the admin.",
+                                          toastLength: Toast.LENGTH_SHORT,
+                                          gravity: ToastGravity.BOTTOM,
+                                          backgroundColor: Colors.red,
+                                          textColor: Colors.white,
+                                        );
+                                      }
+                                    },
+                                    title: "Send Chat Request"),
                               ),
 
                     Padding(

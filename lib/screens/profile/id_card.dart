@@ -35,7 +35,8 @@ class _IDCardState extends State<IDCard> {
 
     // If no photo is selected, use a default placeholder URL or handle it appropriately
     if (_bridePhoto == null) {
-      bridePhotoUrl = "assets/logo.png"; // Default placeholder image path
+      bridePhotoUrl =
+          "https://media.istockphoto.com/id/612650934/vector/id-card-isolated-on-white-background-business-identification-icon.jpg?s=612x612&w=0&k=20&c=byimQb2_LJydS803qrpYKk-80dIC4HEp-BidObosij0="; // Default placeholder image path
     } else {
       // Show a loading indicator
       showDialog(
