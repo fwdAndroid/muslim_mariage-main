@@ -279,6 +279,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                 child: Text(
                                   "Chat request already sent. Please wait for acceptance or rejection.",
                                   style: TextStyle(color: Colors.grey[700]),
+                                  textAlign: TextAlign.center,
                                 ),
                               )
                             : Center(
@@ -306,7 +307,9 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                           "friendId": widget.friendId,
                                           "friendImage": widget.friendPhoto,
                                           "chatId": uuid,
-                                          "userName": _userStatus,
+                                          "userName": snap['fullName'],
+                                          "userPhoto": snap['image'] ??
+                                              "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
                                           "userId": FirebaseAuth
                                               .instance.currentUser!.uid,
                                           "isAccepted": false,
