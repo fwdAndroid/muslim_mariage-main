@@ -71,19 +71,19 @@ class _PaymentPageState extends State<PaymentPage> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Center(
-                child: SaveButton(
-                    title: "Call",
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (builder) => VideoCallPage()));
-                    }),
-              ),
-            )
+            // Padding(
+            //   padding: const EdgeInsets.all(8.0),
+            //   child: Center(
+            //     child: SaveButton(
+            //         title: "Call",
+            //         onTap: () {
+            //           Navigator.push(
+            //               context,
+            //               MaterialPageRoute(
+            //                   builder: (builder) => VideoCallPage()));
+            //         }),
+            //   ),
+            // )
           ],
         ));
   }

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:muslim_mariage/screens/chat/video_call_page.dart';
 import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
@@ -46,6 +47,7 @@ class _MessagesState extends State<Messages> {
     groupChatId = widget.friendId.hashCode <= widget.userId.hashCode
         ? "${widget.friendId}-${widget.userId}"
         : "${widget.userId}-${widget.friendId}";
+    print(widget.friendName);
   }
 
   Future<void> pickAndPreviewImage() async {
@@ -197,8 +199,13 @@ class _MessagesState extends State<Messages> {
             padding: const EdgeInsets.all(8.0),
             child: IconButton(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (builder) => PaymentPage()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (builder) => VideoCall(
+                              friendName: widget.friendName,
+                              callingid: widget.userId,
+                            )));
               },
               icon: Icon(
                 Icons.call,
