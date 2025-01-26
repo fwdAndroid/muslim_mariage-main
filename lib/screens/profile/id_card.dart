@@ -15,54 +15,52 @@ class IDCard extends StatefulWidget {
 }
 
 class _IDCardState extends State<IDCard> {
-  File? _bridePhoto;
+  File? _idCardPhoto;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage(bool isBridePhoto) async {
+  Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        if (isBridePhoto) {
-          _bridePhoto = File(pickedFile.path);
-        }
+        _idCardPhoto = File(pickedFile.path);
       });
     }
   }
 
   Future<void> _savePhotos() async {
-    String bridePhotoUrl;
-
-    // If no photo is selected, use a default placeholder URL or handle it appropriately
-    if (_bridePhoto == null) {
-      bridePhotoUrl =
-          "https://media.istockphoto.com/id/612650934/vector/id-card-isolated-on-white-background-business-identification-icon.jpg?s=612x612&w=0&k=20&c=byimQb2_LJydS803qrpYKk-80dIC4HEp-BidObosij0="; // Default placeholder image path
-    } else {
-      // Show a loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
-      );
-
-      try {
-        // Upload the selected photo to Firebase Storage
-        bridePhotoUrl = await _IDCard(_bridePhoto!, 'idcard');
-        Navigator.pop(context); // Close the loading indicator
-      } catch (e) {
-        Navigator.pop(context); // Close the loading indicator
-        _showAlert('Failed to upload id card. Please try again.');
-        return;
-      }
+    // If no photo is selected, show an error alert
+    if (_idCardPhoto == null) {
+      _showAlert('Please upload your ID card before continuing.');
+      return;
     }
 
-    // Save the photo URL or default to Firestore
+    String idCardPhotoUrl;
+
+    // Show a loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // Upload the selected photo to Firebase Storage
+      idCardPhotoUrl = await _uploadPhoto(_idCardPhoto!, 'idCard');
+      Navigator.pop(context); // Close the loading indicator
+    } catch (e) {
+      Navigator.pop(context); // Close the loading indicator
+      _showAlert('Failed to upload ID card. Please try again.');
+      return;
+    }
+
+    // Save the photo URL to Firestore
     try {
       await FirebaseFirestore.instance
           .collection('users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
           .update({
-        'idCard': bridePhotoUrl,
+        'idCard': idCardPhotoUrl,
       });
 
       // Navigate to the next screen
@@ -71,11 +69,11 @@ class _IDCardState extends State<IDCard> {
         MaterialPageRoute(builder: (builder) => const MainDashboard()),
       );
     } catch (e) {
-      _showAlert('Failed to save photo. Please try again.');
+      _showAlert('Failed to save ID card. Please try again.');
     }
   }
 
-  Future<String> _IDCard(File file, String photoType) async {
+  Future<String> _uploadPhoto(File file, String photoType) async {
     String fileName = '$photoType-${DateTime.now().millisecondsSinceEpoch}';
     UploadTask uploadTask =
         FirebaseStorage.instance.ref('uploads/$fileName').putFile(file);
@@ -121,7 +119,7 @@ class _IDCardState extends State<IDCard> {
             ),
             const SizedBox(height: 8),
             const Text(
-              "Upload photos of your id card.",
+              "Please upload a photo of your ID card.",
               style: TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -134,10 +132,10 @@ class _IDCardState extends State<IDCard> {
                   const Text('ID Card'),
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () => _pickImage(true),
+                    onTap: () => _pickImage(),
                     child: _buildPhotoTile(
-                        image: _bridePhoto != null
-                            ? FileImage(_bridePhoto!)
+                        image: _idCardPhoto != null
+                            ? FileImage(_idCardPhoto!)
                             : null),
                   ),
                 ],

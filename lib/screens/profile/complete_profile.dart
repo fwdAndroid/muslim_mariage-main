@@ -149,6 +149,36 @@ class _CompleteProfileState extends State<CompleteProfile> {
   }
 
   void _saveProfile() {
+    // Check if name fields have at least 4 characters
+    if (_fatherController.text.length < 4 ||
+        _motherController.text.length < 4) {
+      _showAlert('Father and Mother names must be at least 4 characters long.');
+      return;
+    }
+
+    // Check if Date of Birth is selected and calculate the age
+    if (_dobController.text.isEmpty) {
+      _showAlert('Please select your Date of Birth.');
+      return;
+    }
+
+    DateTime dob = DateFormat('dd/MM/yy').parse(_dobController.text);
+    int age = DateTime.now().year - dob.year;
+    if (DateTime.now().month < dob.month ||
+        (DateTime.now().month == dob.month && DateTime.now().day < dob.day)) {
+      age--;
+    }
+
+    // Age validation based on gender
+    if (_selectedGender == 'Female' && age < 18) {
+      _showAlert('Females must be at least 18 years old.');
+      return;
+    } else if (_selectedGender == 'Male' && age < 21) {
+      _showAlert('Males must be at least 21 years old.');
+      return;
+    }
+
+    // Check if all fields are filled
     if (_fatherController.text.isEmpty ||
         _motherController.text.isEmpty ||
         _dobController.text.isEmpty ||
@@ -162,14 +192,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
       return;
     }
 
-    // String address = countryValue +
-    //     " " +
-    //     stateValue +
-    //     " " +
-    //     cityValue +
-    //     " " +
-    //     locationController.text;
-
+    // Proceed to save profile to Firestore
     FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -259,7 +282,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
       }).toList(),
       onChanged: (String? newValue) {
         setState(() {
-          if (labelText == "Profile Creator") {
+          if (labelText == 'Profile Creator') {
             _profileCreator = newValue!;
           } else if (labelText == 'Your Sect') {
             _selectedSect = newValue!;

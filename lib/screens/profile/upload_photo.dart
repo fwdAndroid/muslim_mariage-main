@@ -17,6 +17,28 @@ class UploadPhoto extends StatefulWidget {
 class _UploadPhotoState extends State<UploadPhoto> {
   File? _bridePhoto;
   final ImagePicker _picker = ImagePicker();
+  String? gender; // To store the user's gender
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserGender(); // Fetch the gender on initialization
+  }
+
+  Future<void> _fetchUserGender() async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      setState(() {
+        gender =
+            userDoc['gender'] as String?; // Assuming the gender field exists
+      });
+    } catch (e) {
+      _showAlert('Failed to fetch user data.');
+    }
+  }
 
   Future<void> _pickImage(bool isBridePhoto) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -33,10 +55,11 @@ class _UploadPhotoState extends State<UploadPhoto> {
   Future<void> _savePhotos() async {
     String bridePhotoUrl;
 
-    // If no photo is selected, use a default placeholder URL or handle it appropriately
     if (_bridePhoto == null) {
-      bridePhotoUrl =
-          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSVLlEYDLjwRY2NOKntxz5kIgZnDUwmZOAlQw&s"; // Default placeholder image path
+      // Use a gender-specific placeholder image
+      bridePhotoUrl = gender == "female"
+          ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s" // Female placeholder URL
+          : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s"; // Male placeholder URL
     } else {
       // Show a loading indicator
       showDialog(
@@ -46,7 +69,6 @@ class _UploadPhotoState extends State<UploadPhoto> {
       );
 
       try {
-        // Upload the selected photo to Firebase Storage
         bridePhotoUrl = await _uploadPhoto(_bridePhoto!, 'bridePhoto');
         Navigator.pop(context); // Close the loading indicator
       } catch (e) {
@@ -105,53 +127,59 @@ class _UploadPhotoState extends State<UploadPhoto> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'Upload Photos',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Upload Photos',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "Upload photos for the bride and groom.",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
+              const SizedBox(height: 8),
+              const Text(
+                "Upload photos for the bride and groom.",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: Column(
-                children: [
-                  const Text('Bride Photo'),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: () => _pickImage(true),
-                    child: _buildPhotoTile(
-                        image: _bridePhoto != null
-                            ? FileImage(_bridePhoto!)
-                            : null),
-                  ),
-                ],
+              const SizedBox(height: 20),
+              Expanded(
+                child: Column(
+                  children: [
+                    const Text('Bride Photo'),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () => _pickImage(true),
+                      child: _buildPhotoTile(
+                          image: _bridePhoto != null
+                              ? FileImage(_bridePhoto!)
+                              : gender == "female"
+                                  ? const NetworkImage(
+                                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s")
+                                  : const NetworkImage(
+                                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s")),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SaveButton(
-                title: "Continue",
-                onTap: _savePhotos,
+              const Spacer(),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SaveButton(
+                  title: "Continue",
+                  onTap: _savePhotos,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

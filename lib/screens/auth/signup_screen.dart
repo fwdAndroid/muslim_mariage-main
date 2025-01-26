@@ -21,6 +21,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _locationControllerA = TextEditingController();
+  final TextEditingController _locationControllerC = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
 
   bool passwordVisible = false;
@@ -238,37 +240,43 @@ class _SignupScreenState extends State<SignupScreen> {
                   Container(
                     margin: const EdgeInsets.only(left: 10, right: 10),
                     padding: const EdgeInsets.all(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              "Location",
-                              style: GoogleFonts.poppins(
-                                  color: black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14),
-                            ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "Location",
+                            style: GoogleFonts.poppins(
+                                color: black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14),
                           ),
-                          TextFormField(
-                            controller: _locationControllerA,
-                            decoration: InputDecoration(
-                              hintText: 'Enter State',
-                              border: const OutlineInputBorder(),
-                            ),
+                        ),
+                        TextFormField(
+                          controller: _locationControllerC,
+                          decoration: InputDecoration(
+                            hintText: 'City ',
+                            border: const OutlineInputBorder(),
                           ),
-                          TextFormField(
-                            controller: _locationController,
-                            decoration: InputDecoration(
-                              hintText: 'Address',
-                              border: const OutlineInputBorder(),
-                            ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _locationControllerA,
+                          decoration: InputDecoration(
+                            hintText: 'Taluka ',
+                            border: const OutlineInputBorder(),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          controller: _locationController,
+                          decoration: const InputDecoration(
+                            hintText: 'District',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -285,9 +293,10 @@ class _SignupScreenState extends State<SignupScreen> {
                             _passwordController.text.isEmpty ||
                             _phoneNumberController.text.isEmpty ||
                             _locationControllerA.text.isEmpty ||
-                            _locationController.text.isEmpty) {
+                            _locationController.text.isEmpty ||
+                            _locationControllerC.text.isEmpty) {
                           showMessageBar(
-                            "Email & Password & PhoneNumber & Location is Required",
+                            "Email, Password, Phone Number & Location are required",
                             context,
                           );
                         } else {
@@ -295,21 +304,39 @@ class _SignupScreenState extends State<SignupScreen> {
                             isLoading = true;
                           });
                           if (_formKey.currentState!.validate()) {
-                            String address = _locationControllerA.text +
+                            String address = _locationControllerC.text +
+                                _locationControllerA.text +
                                 _locationController.text;
+
                             try {
+                              // Check if email is already registered
+                              bool emailExists = await AuthMethods()
+                                  .checkIfEmailExists(_emailController.text);
+                              if (emailExists) {
+                                showMessageBar(
+                                    "This email is already in use. Please use a different email.",
+                                    context);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                return;
+                              }
+
+                              // Proceed with registration if email is unique
                               await AuthMethods().registerUser(
-                                  phone: _phoneNumberController.text,
-                                  confirmPassword: _reenterController.text,
-                                  context: context,
-                                  location: address,
-                                  email: _emailController.text,
-                                  password: _passwordController.text);
+                                phone: _phoneNumberController.text,
+                                confirmPassword: _reenterController.text,
+                                context: context,
+                                location: address,
+                                email: _emailController.text,
+                                password: _passwordController.text,
+                              );
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (builder) =>
-                                          const CompleteProfile()));
+                                context,
+                                MaterialPageRoute(
+                                    builder: (builder) =>
+                                        const CompleteProfile()),
+                              );
                             } catch (e) {
                               showMessageBar(e.toString(), context);
                             }

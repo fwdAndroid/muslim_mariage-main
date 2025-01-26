@@ -19,6 +19,25 @@ class AuthMethods {
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
 
+  Future<bool> checkIfEmailExists(String email) async {
+    try {
+      // Query the users collection in Firestore
+      QuerySnapshot result = await FirebaseFirestore.instance
+          .collection('users') // Your users collection
+          .where('email', isEqualTo: email)
+          .get();
+
+      // If the query returns documents, the email already exists
+      if (result.docs.isNotEmpty) {
+        return true; // Email exists
+      }
+      return false; // Email does not exist
+    } catch (e) {
+      print("Error checking email existence: $e");
+      return false; // In case of error, assume the email is available
+    }
+  }
+
   Future<String> loginUpUser({
     required String email,
     required String pass,
