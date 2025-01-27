@@ -170,12 +170,17 @@ class _SearchPageState extends State<SearchPage> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (builder) => ProfileDetail(
+                                                  height: data['height'],
+                                                  idCard: data['idCard'],
+                                                  salary: data['salary'],
                                                   friendMother:
                                                       data['motherName'] ??
                                                           "Not Available",
                                                   friendFather:
                                                       data['fatherName'] ??
                                                           "Not Available",
+                                                  jobOccupation:
+                                                      data['jobOccupation'],
                                                   profileCreator:
                                                       data['profileCreator'],
                                                   maritalStatus:

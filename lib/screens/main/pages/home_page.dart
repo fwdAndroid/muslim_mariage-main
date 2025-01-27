@@ -8,7 +8,6 @@ import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/detail/view_all.dart';
 import 'package:muslim_mariage/screens/search/search_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
-import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -168,6 +167,9 @@ class _HomePageState extends State<HomePage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (builder) => ProfileDetail(
+                                        height: data['height'],
+                                        idCard: data['idCard'],
+                                        salary: data['salary'],
                                         friendMother: data['motherName'] ??
                                             "Not Available",
                                         friendFather: data['fatherName'] ??
@@ -178,6 +180,7 @@ class _HomePageState extends State<HomePage> {
                                         friendName: data['fullName'],
                                         friendId: data['uid'],
                                         friendDOB: age,
+                                        jobOccupation: data['jobOccupation'],
                                         gender: data['gender'],
                                         sect: data['sect'] ?? "Not Available",
                                         cast: data['cast'] ?? "Not Available",

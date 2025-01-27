@@ -119,9 +119,13 @@ class _ViewAllState extends State<ViewAll> {
                       MaterialPageRoute(
                         builder: (builder) => ProfileDetail(
                           location: data['location'],
+                          height: data['height'],
+                          idCard: data['idCard'],
+                          salary: data['salary'],
                           friendPhoto: data['image'],
                           friendName: data['fullName'],
                           friendId: data['uid'],
+                          jobOccupation: data['jobOccupation'],
                           friendDOB: age ?? "Not Available",
                           gender: data['gender'],
                           sect: data['sect'] ?? "Not Available",

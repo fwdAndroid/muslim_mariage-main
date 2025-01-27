@@ -19,10 +19,14 @@ class ProfileDetail extends StatefulWidget {
   String profileCreator;
   String friendId;
   String sect;
+  String jobOccupation;
   String maritalStatus;
   String cast;
   String location;
   String gender;
+  String idCard;
+  String height;
+  String salary;
   ProfileDetail(
       {super.key,
       required this.yourSelf,
@@ -39,6 +43,10 @@ class ProfileDetail extends StatefulWidget {
       required this.friendFather,
       required this.friendMother,
       required this.gender,
+      required this.height,
+      required this.idCard,
+      required this.salary,
+      required this.jobOccupation,
       required this.cast});
 
   @override
@@ -215,6 +223,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                               buildDetailRow('Sect', widget.sect),
                               buildDetailRow('Cast', widget.cast),
                               buildDetailRow('Age', widget.friendDOB + " yrs"),
+                              buildDetailRow('Height', widget.height),
                               buildDetailRow('Gender', widget.gender),
                               buildDetailRow(
                                   'Marital Status', widget.maritalStatus),
@@ -250,6 +259,22 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                   ),
                                 ),
                                 Text(
+                                  'Job',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  widget.jobOccupation,
+                                  style: TextStyle(
+                                    color: black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                buildDetailRow('Salary', widget.salary),
+                                Text(
                                   'Created By',
                                   style: TextStyle(
                                     fontSize: 16,
@@ -263,6 +288,21 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                     color: black,
                                     fontSize: 16,
                                   ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'ID CARD',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Image.network(
+                                  widget.idCard,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                  width: MediaQuery.of(context).size.width,
                                 ),
                               ],
                             ),
