@@ -14,6 +14,20 @@ class ViewAll extends StatefulWidget {
 }
 
 class _ViewAllState extends State<ViewAll> {
+  String _currentUserGender = '';
+
+  Future<void> _fetchCurrentUserGender() async {
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    if (doc.exists) {
+      setState(() {
+        _currentUserGender = doc.data()?['gender'] ?? '';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +36,8 @@ class _ViewAllState extends State<ViewAll> {
         stream: FirebaseFirestore.instance
             .collection("users")
             .where("uid", isNotEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .where("gender",
+                isEqualTo: _currentUserGender == 'Male' ? 'Female' : 'Male')
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -96,8 +112,7 @@ class _ViewAllState extends State<ViewAll> {
                       MaterialPageRoute(
                         builder: (builder) => ProfileDetail(
                           location: data['location'],
-                          friendPhoto: data['image'] ??
-                              "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
+                          friendPhoto: data['image'],
                           friendName: data['fullName'],
                           friendId: data['uid'],
                           friendDOB: age ?? "Not Available",
