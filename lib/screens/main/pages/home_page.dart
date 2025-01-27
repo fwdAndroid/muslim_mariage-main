@@ -3,8 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart'; // Import intl package
-import 'package:muslim_mariage/functions.dart';
+
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
 import 'package:muslim_mariage/screens/detail/view_all.dart';
 import 'package:muslim_mariage/screens/search/search_page.dart';
@@ -152,17 +151,11 @@ class _HomePageState extends State<HomePage> {
                             filteredDocs[index].data() as Map<String, dynamic>;
 
                         // Validate and parse 'dob'
-                        final dateFormat =
-                            DateFormat('MM/dd/yy'); // Adjust as needed
-                        DateTime? birthday;
-                        try {
-                          birthday = dateFormat.parse(data['dob']);
-                        } catch (e) {
-                          birthday = null; // Fallback for invalid dates
-                        }
+                        final dob = data['dob'] ?? '';
+                        DateTime? birthday = parseDob(dob);
 
                         final age = birthday != null
-                            ? RegisterFunctions().calculateAge(birthday)
+                            ? calculateAge(birthday)
                             : "Unknown";
 
                         final List<dynamic> favorites = data['favorite'] ?? [];
@@ -180,8 +173,7 @@ class _HomePageState extends State<HomePage> {
                                             "Not Available",
                                         profileCreator: data['profileCreator'],
                                         maritalStatus: data['maritalStatus'],
-                                        friendPhoto: data['image'] ??
-                                            "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
+                                        friendPhoto: data['image'],
                                         friendName: data['fullName'],
                                         friendId: data['uid'],
                                         friendDOB: age,
@@ -346,5 +338,40 @@ class _HomePageState extends State<HomePage> {
         _currentUserGender = doc.data()?['gender'] ?? '';
       });
     }
+  }
+
+  // Parsing DOB string to DateTime, considering two-digit years.
+  DateTime? parseDob(String dob) {
+    try {
+      final parts = dob.split('/');
+      if (parts.length == 3) {
+        int day = int.parse(parts[0]);
+        int month = int.parse(parts[1]);
+        int year = int.parse(parts[2]);
+
+        // Handle two-digit years
+        if (year < 100) {
+          final currentYear = DateTime.now().year % 100;
+          year += (year > currentYear ? 1900 : 2000);
+        }
+
+        return DateTime(year, month, day);
+      }
+    } catch (e) {
+      // Handle invalid date parsing
+      return null;
+    }
+    return null;
+  }
+
+  // Function to calculate the user's age from the parsed birthday.
+  String calculateAge(DateTime birthday) {
+    final DateTime today = DateTime.now();
+    int age = today.year - birthday.year;
+    if (today.month < birthday.month ||
+        (today.month == birthday.month && today.day < birthday.day)) {
+      age--;
+    }
+    return age.toString();
   }
 }

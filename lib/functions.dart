@@ -29,4 +29,27 @@ class RegisterFunctions {
     }
     return age.toString();
   }
+
+  DateTime? parseDob(String dob) {
+    try {
+      final parts = dob.split('/');
+      if (parts.length == 3) {
+        int day = int.parse(parts[0]);
+        int month = int.parse(parts[1]);
+        int year = int.parse(parts[2]);
+
+        // Handle two-digit years
+        if (year < 100) {
+          final currentYear = DateTime.now().year % 100;
+          year += (year > currentYear ? 1900 : 2000);
+        }
+
+        return DateTime(year, month, day);
+      }
+    } catch (e) {
+      // Handle invalid date parsing
+      return null;
+    }
+    return null;
+  }
 }
