@@ -57,8 +57,8 @@ class _UploadPhotoState extends State<UploadPhoto> {
 
     if (_bridePhoto == null) {
       // Use a gender-specific placeholder image
-      bridePhotoUrl = gender == "female"
-          ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s" // Female placeholder URL
+      bridePhotoUrl = gender == "Female"
+          ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s" // Fe placeholder URL
           : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s"; // Male placeholder URL
     } else {
       // Show a loading indicator
@@ -161,13 +161,29 @@ class _UploadPhotoState extends State<UploadPhoto> {
                       child: _buildPhotoTile(
                           image: _bridePhoto != null
                               ? FileImage(_bridePhoto!)
-                              : gender == "female"
+                              : gender == "Female"
                                   ? const NetworkImage(
                                       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s")
                                   : const NetworkImage(
                                       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s")),
                     ),
                   ],
+                ),
+              ),
+              ElevatedButton(
+                  child: Text("Choose Image"),
+                  onPressed: () {
+                    _pickImage(true);
+                  }),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: const Text(
+                  "Photo is Optional if you dont want to upload the photo just press continue.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
               const Spacer(),

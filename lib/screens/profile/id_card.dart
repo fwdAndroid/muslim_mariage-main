@@ -141,6 +141,17 @@ class _IDCardState extends State<IDCard> {
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Text(
+                "Adhar card, voter ID card or any govt recognised I'd card needed",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
             const Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),

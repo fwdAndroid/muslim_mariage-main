@@ -15,7 +15,7 @@ class RegisterFunctions {
     if (value == null || value.isEmpty) {
       return 'Password is required';
     } else if (!RegExp(r'^[a-z0-9]{6}$').hasMatch(value)) {
-      return 'Special Characters are not allowed with UpperCase';
+      return 'Special Characters are not allowed with UpperCase and it must be six characters';
     }
     return null;
   }

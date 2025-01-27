@@ -219,22 +219,31 @@ class _SignupScreenState extends State<SignupScreen> {
                       controller: _phoneNumberController,
                       style: GoogleFonts.poppins(color: black),
                       keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Phone number is required';
+                        } else if (value.length != 10) {
+                          return 'Phone number must be exactly 10 characters long';
+                        }
+                        return null;
+                      },
                       decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.phone,
-                            color: iconColor,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          errorBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          border: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor)),
-                          hintText: "Phone Number",
-                          hintStyle:
-                              GoogleFonts.poppins(color: black, fontSize: 12)),
+                        prefixIcon: Icon(
+                          Icons.phone,
+                          color: iconColor,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: mainColor)),
+                        errorBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: mainColor)),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: mainColor)),
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(color: mainColor)),
+                        hintText: "Phone Number",
+                        hintStyle:
+                            GoogleFonts.poppins(color: black, fontSize: 12),
+                      ),
                     ),
                   ),
                   Container(
