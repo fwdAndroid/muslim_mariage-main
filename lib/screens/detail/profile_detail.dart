@@ -291,8 +291,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                         });
 
                                         Fluttertoast.showToast(
-                                          msg:
-                                              "Chat request sent successfully.",
+                                          msg: "Digital Rishta Bheje",
                                           toastLength: Toast.LENGTH_SHORT,
                                           gravity: ToastGravity.BOTTOM,
                                           backgroundColor: Colors.green,

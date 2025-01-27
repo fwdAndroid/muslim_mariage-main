@@ -142,11 +142,12 @@ class _HomePageState extends State<HomePage> {
                       );
                     }
 
-                    return CardSwiper(
-                      cardsCount: filteredDocs.length,
-                      numberOfCardsDisplayed: filteredDocs.length < 2 ? 1 : 2,
-                      cardBuilder: (context, index, percentThresholdX,
-                          percentThresholdY) {
+                    return ListView.builder(
+                      itemCount: filteredDocs.length,
+                      itemBuilder: (
+                        context,
+                        index,
+                      ) {
                         final Map<String, dynamic> data =
                             filteredDocs[index].data() as Map<String, dynamic>;
 
@@ -189,136 +190,142 @@ class _HomePageState extends State<HomePage> {
                                         yourSelf: data['aboutYourself'] ??
                                             "Not Available")));
                           },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Stack(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(8),
-                                  ),
-                                  child: data['image'] == null ||
-                                          data['image'].isEmpty
-                                      ? Image.asset("assets/logo.png",
-                                          fit: BoxFit.cover,
-                                          width: double.infinity,
-                                          height: double.infinity)
-                                      : Image.network(data['image'],
-                                          fit: BoxFit.cover,
-                                          width: double.infinity,
-                                          height: double.infinity),
+                          child: SizedBox(
+                            height: 400,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${data['fullName']}',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 22,
-                                          color: textColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(8),
                                       ),
-                                      Text(
-                                        '$age yrs',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: textColor,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        data['sect'] + " Islam",
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: textColor,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        data['maritalStatus'],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: textColor,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        data['location'],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: textColor,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Center(
-                                        child: IconButton(
-                                          iconSize: 50,
-                                          onPressed: () async {
-                                            final docRef = FirebaseFirestore
-                                                .instance
-                                                .collection("users")
-                                                .doc(data['uid']);
-
-                                            if (isFavorite) {
-                                              await docRef.update({
-                                                "favorite":
-                                                    FieldValue.arrayRemove(
-                                                        [currentUserId]),
-                                              });
-
-                                              setState(() {
-                                                isFavorite = false;
-                                              });
-
-                                              Fluttertoast.showToast(
-                                                backgroundColor: red,
-                                                msg:
-                                                    "Removed ${data['fullName']} from your favorite list",
-                                                textColor: colorWhite,
-                                              );
-                                            } else {
-                                              await docRef.update({
-                                                "favorite":
-                                                    FieldValue.arrayUnion(
-                                                        [currentUserId]),
-                                              });
-
-                                              setState(() {
-                                                isFavorite = true;
-                                              });
-
-                                              Fluttertoast.showToast(
-                                                backgroundColor: mainColor,
-                                                msg:
-                                                    "Added ${data['fullName']} to your favorite list",
-                                                textColor: colorWhite,
-                                              );
-                                            }
-                                          },
-                                          icon: Icon(
-                                            Icons.favorite,
-                                            color: isFavorite
-                                                ? Colors.red
-                                                : iconColor,
+                                      child: data['image'] == null ||
+                                              data['image'].isEmpty
+                                          ? Image.asset("assets/logo.png",
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: double.infinity)
+                                          : Image.network(data['image'],
+                                              fit: BoxFit.cover,
+                                              width: double.infinity,
+                                              height: double.infinity),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            '${data['fullName']}',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 22,
+                                              color: textColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
+                                          Text(
+                                            '$age yrs',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: textColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            data['sect'] + " Islam",
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: textColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            data['maritalStatus'],
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: textColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text(
+                                            data['location'],
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 14,
+                                              color: textColor,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Center(
+                                            child: IconButton(
+                                              iconSize: 50,
+                                              onPressed: () async {
+                                                final docRef = FirebaseFirestore
+                                                    .instance
+                                                    .collection("users")
+                                                    .doc(data['uid']);
+
+                                                if (isFavorite) {
+                                                  await docRef.update({
+                                                    "favorite":
+                                                        FieldValue.arrayRemove(
+                                                            [currentUserId]),
+                                                  });
+
+                                                  setState(() {
+                                                    isFavorite = false;
+                                                  });
+
+                                                  Fluttertoast.showToast(
+                                                    backgroundColor: red,
+                                                    msg:
+                                                        "Removed ${data['fullName']} from your favorite list",
+                                                    textColor: colorWhite,
+                                                  );
+                                                } else {
+                                                  await docRef.update({
+                                                    "favorite":
+                                                        FieldValue.arrayUnion(
+                                                            [currentUserId]),
+                                                  });
+
+                                                  setState(() {
+                                                    isFavorite = true;
+                                                  });
+
+                                                  Fluttertoast.showToast(
+                                                    backgroundColor: mainColor,
+                                                    msg:
+                                                        "Added ${data['fullName']} to your favorite list",
+                                                    textColor: colorWhite,
+                                                  );
+                                                }
+                                              },
+                                              icon: Icon(
+                                                Icons.favorite,
+                                                color: isFavorite
+                                                    ? Colors.red
+                                                    : iconColor,
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         );
                       },
-                      scale: 0.9,
                     );
                   },
                 ),

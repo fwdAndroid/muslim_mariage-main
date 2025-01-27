@@ -29,6 +29,13 @@ class _ViewAllState extends State<ViewAll> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _fetchCurrentUserGender();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
