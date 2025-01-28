@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:muslim_mariage/screens/profile/complete_profile.dart';
 
 class AuthMethods {
   //Google SignIn
@@ -21,20 +22,11 @@ class AuthMethods {
 
   Future<bool> checkIfEmailExists(String email) async {
     try {
-      // Query the users collection in Firestore
-      QuerySnapshot result = await FirebaseFirestore.instance
-          .collection('users') // Your users collection
-          .where('email', isEqualTo: email)
-          .get();
-
-      // If the query returns documents, the email already exists
-      if (result.docs.isNotEmpty) {
-        return true; // Email exists
-      }
-      return false; // Email does not exist
+      final List<String> methods =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      return methods.isNotEmpty; // Returns true if the email exists.
     } catch (e) {
-      print("Error checking email existence: $e");
-      return false; // In case of error, assume the email is available
+      throw Exception("Error checking email: ${e.toString()}");
     }
   }
 
@@ -81,9 +73,7 @@ class AuthMethods {
           const SnackBar(content: Text('Email is already registered')),
         );
         return 'Email is already registered';
-      }
-
-      if (email.isNotEmpty && password.isNotEmpty) {
+      } else {
         UserCredential cred = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
         await FirebaseFirestore.instance
@@ -100,6 +90,10 @@ class AuthMethods {
         });
 
         res = 'success';
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (builder) => const CompleteProfile()),
+        );
       }
     } catch (e) {
       res = e.toString();

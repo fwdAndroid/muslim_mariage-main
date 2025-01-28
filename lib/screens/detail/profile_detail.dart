@@ -27,27 +27,28 @@ class ProfileDetail extends StatefulWidget {
   String idCard;
   String height;
   String salary;
-  ProfileDetail(
-      {super.key,
-      required this.yourSelf,
-      required this.friendId,
-      required this.friendName,
-      required this.maritalStatus,
-      required this.friendPhoto,
-      required this.friendPhone,
-      required this.friendDOB,
-      required this.location,
-      required this.friendQualification,
-      required this.sect,
-      required this.profileCreator,
-      required this.friendFather,
-      required this.friendMother,
-      required this.gender,
-      required this.height,
-      required this.idCard,
-      required this.salary,
-      required this.jobOccupation,
-      required this.cast});
+  ProfileDetail({
+    super.key,
+    required this.yourSelf,
+    required this.friendId,
+    required this.friendName,
+    required this.maritalStatus,
+    required this.friendPhoto,
+    required this.friendPhone,
+    required this.friendDOB,
+    required this.location,
+    required this.friendQualification,
+    required this.sect,
+    required this.profileCreator,
+    required this.friendFather,
+    required this.friendMother,
+    required this.gender,
+    required this.height,
+    required this.idCard,
+    required this.salary,
+    required this.jobOccupation,
+    required this.cast,
+  });
 
   @override
   State<ProfileDetail> createState() => _ProfileDetailState();
@@ -81,7 +82,6 @@ class _ProfileDetailState extends State<ProfileDetail> {
     }
   }
 
-  bool isButtonDisabled = false; // Track button state
   Future<void> _getCurrentUserStatus() async {
     final userDoc = await FirebaseFirestore.instance
         .collection("users")
@@ -101,299 +101,250 @@ class _ProfileDetailState extends State<ProfileDetail> {
       child: Scaffold(
         body: SingleChildScrollView(
           child: StreamBuilder<Object>(
-              stream: FirebaseFirestore.instance
-                  .collection("users")
-                  .doc(FirebaseAuth.instance.currentUser!.uid)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: Text(""));
-                }
-                if (!snapshot.hasData || snapshot.data == null) {
-                  return const Center(child: Text('Loading'));
-                }
-                var snap = snapshot.data;
+            stream: FirebaseFirestore.instance
+                .collection("users")
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .snapshots(),
+            builder: (context, AsyncSnapshot snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text(""));
+              }
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const Center(child: Text('Loading'));
+              }
+              var snap = snapshot.data;
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Profile Picture and Name
-                    Stack(
-                      children: [
-                        Image.network(
-                          widget.friendPhoto,
-                          height: 200,
-                          fit: BoxFit.cover,
-                          width: MediaQuery.of(context).size.width,
-                        ),
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(
-                              Icons.close,
-                              color: black,
-                            ))
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    // Contact Details
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "Profile Description",
-                        style: TextStyle(
-                          color: black,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Picture and Name
+                  Stack(
+                    children: [
+                      Image.network(
+                        widget.friendPhoto,
+                        height: 200,
+                        fit: BoxFit.cover,
                         width: MediaQuery.of(context).size.width,
-                        child: Card(
-                          elevation: 2,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 8, right: 8, top: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Contact Number:',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  widget.friendPhone,
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  'Location:',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  widget.location,
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(
+                          Icons.close,
+                          color: black,
                         ),
                       ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  // Contact Details
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "Profile Description",
+                      style: TextStyle(
+                        color: black,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-
-                    // Basic Details
-                    Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
                       child: Card(
                         elevation: 2,
                         child: Padding(
-                          padding: EdgeInsets.all(16),
+                          padding: EdgeInsets.only(left: 8, right: 8, top: 8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Basic Details',
+                                'Contact Number:',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
+                              SizedBox(height: 8),
+                              Text(
+                                _userStatus == 'accepted'
+                                    ? widget.friendPhone
+                                    : 'Hidden (User not verified)',
+                                style: TextStyle(
+                                  color: black,
+                                  fontSize: 16,
+                                ),
+                              ),
                               SizedBox(height: 16),
-                              buildDetailRow('Name', widget.friendName),
-                              buildDetailRow(
-                                  "Father Name", widget.friendFather),
-                              buildDetailRow(
-                                  "Mother Name", widget.friendMother),
-                              buildDetailRow('Sect', widget.sect),
-                              buildDetailRow('Cast', widget.cast),
-                              buildDetailRow('Age', widget.friendDOB + " yrs"),
-                              buildDetailRow('Height', widget.height),
-                              buildDetailRow('Gender', widget.gender),
-                              buildDetailRow(
-                                  'Marital Status', widget.maritalStatus),
+                              Text(
+                                'Location:',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                widget.location,
+                                style: TextStyle(
+                                  color: black,
+                                  fontSize: 16,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        child: Card(
-                          elevation: 2,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 8, right: 8, top: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Qualification',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  widget.friendQualification,
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Text(
-                                  'Job',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  widget.jobOccupation,
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                buildDetailRow('Salary', widget.salary),
-                                Text(
-                                  'Created By',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  widget.profileCreator,
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'ID CARD',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Image.network(
-                                  widget.idCard,
-                                  height: 200,
-                                  fit: BoxFit.cover,
-                                  width: MediaQuery.of(context).size.width,
-                                ),
-                              ],
+                  ),
+
+                  // Basic Details
+                  Padding(
+                    padding: EdgeInsets.only(left: 8, right: 8, top: 8),
+                    child: Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Basic Details',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
+                            SizedBox(height: 16),
+                            buildDetailRow('Name', widget.friendName),
+                            buildDetailRow("Father Name", widget.friendFather),
+                            buildDetailRow("Mother Name", widget.friendMother),
+                            buildDetailRow('Sect', widget.sect),
+                            buildDetailRow('Cast', widget.cast),
+                            buildDetailRow('Age', widget.friendDOB + " yrs"),
+                            buildDetailRow('Height', widget.height),
+                            buildDetailRow('Gender', widget.gender),
+                            buildDetailRow(
+                                'Marital Status', widget.maritalStatus),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Additional Information
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Card(
+                        elevation: 2,
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildDetailRow(
+                                  'Qualification', widget.friendQualification),
+                              buildDetailRow('Job', widget.jobOccupation),
+                              buildDetailRow('Salary', widget.salary),
+                              buildDetailRow(
+                                  'Profile Created By', widget.profileCreator),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                    isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(),
-                          )
-                        : hasPendingRequest
-                            ? Center(
-                                child: Text(
-                                  "Chat request already sent. Please wait for acceptance or rejection.",
-                                  style: TextStyle(color: Colors.grey[700]),
-                                  textAlign: TextAlign.center,
-                                ),
-                              )
-                            : Center(
-                                child: SaveButton(
-                                    onTap: () async {
-                                      if (_userStatus == 'accepted') {
-                                        setState(() {
-                                          isLoading = true;
-                                        });
-
-                                        Fluttertoast.showToast(
-                                          msg: "Digital Rishta Bheje",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.BOTTOM,
-                                          backgroundColor: Colors.green,
-                                          textColor: Colors.white,
-                                        );
-
-                                        await FirebaseFirestore.instance
-                                            .collection("chats")
-                                            .doc(uuid)
-                                            .set({
-                                          "friendName": widget.friendName,
-                                          "friendId": widget.friendId,
-                                          "friendImage": widget.friendPhoto,
-                                          "chatId": uuid,
-                                          "userName": snap['fullName'],
-                                          "userPhoto": snap['image'] ??
-                                              "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
-                                          "userId": FirebaseAuth
-                                              .instance.currentUser!.uid,
-                                          "isAccepted": false,
-                                        });
-
-                                        setState(() {
-                                          isLoading = false;
-                                          hasPendingRequest = true;
-                                        });
-                                      } else {
-                                        Fluttertoast.showToast(
-                                          msg:
-                                              "You are not verified by the admin.",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.BOTTOM,
-                                          backgroundColor: Colors.red,
-                                          textColor: Colors.white,
-                                        );
-                                      }
-                                    },
-                                    title: "Send Chat Request"),
+                  ),
+                  isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : hasPendingRequest
+                          ? Center(
+                              child: Text(
+                                "Chat request already sent. Please wait for acceptance or rejection.",
+                                style: TextStyle(color: Colors.grey[700]),
+                                textAlign: TextAlign.center,
                               ),
+                            )
+                          : Center(
+                              child: SaveButton(
+                                onTap: () async {
+                                  if (_userStatus == 'accepted') {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
 
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Center(
-                        child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (builder) => ReportUser(
-                                            FriendName: widget.friendName,
-                                            FriendID: widget.friendId,
-                                          )));
-                            },
-                            child: Text(
-                              "Report Account",
-                              style: TextStyle(color: mainColor),
-                            )),
+                                    Fluttertoast.showToast(
+                                      msg: "Digital Rishta Bheje",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      backgroundColor: Colors.green,
+                                      textColor: Colors.white,
+                                    );
+
+                                    await FirebaseFirestore.instance
+                                        .collection("chats")
+                                        .doc(uuid)
+                                        .set({
+                                      "friendName": widget.friendName,
+                                      "friendId": widget.friendId,
+                                      "friendImage": widget.friendPhoto,
+                                      "chatId": uuid,
+                                      "userName": snap['fullName'],
+                                      "userPhoto": snap['image'] ??
+                                          "https://cdn.pixabay.com/photo/2024/05/26/10/15/bird-8788491_960_720.jpg",
+                                      "userId": FirebaseAuth
+                                          .instance.currentUser!.uid,
+                                      "isAccepted": false,
+                                    });
+
+                                    setState(() {
+                                      isLoading = false;
+                                      hasPendingRequest = true;
+                                    });
+                                  } else {
+                                    Fluttertoast.showToast(
+                                      msg: "You are not verified by the admin.",
+                                      toastLength: Toast.LENGTH_SHORT,
+                                      gravity: ToastGravity.BOTTOM,
+                                      backgroundColor: Colors.red,
+                                      textColor: Colors.white,
+                                    );
+                                  }
+                                },
+                                title: "Digital Rishta Bheje",
+                              ),
+                            ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (builder) => ReportUser(
+                                FriendName: widget.friendName,
+                                FriendID: widget.friendId,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Report Account",
+                          style: TextStyle(color: mainColor),
+                        ),
                       ),
-                    )
-                  ],
-                );
-              }),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

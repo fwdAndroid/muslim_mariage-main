@@ -319,17 +319,6 @@ class _SignupScreenState extends State<SignupScreen> {
 
                             try {
                               // Check if email is already registered
-                              bool emailExists = await AuthMethods()
-                                  .checkIfEmailExists(_emailController.text);
-                              if (emailExists) {
-                                showMessageBar(
-                                    "This email is already in use. Please use a different email.",
-                                    context);
-                                setState(() {
-                                  isLoading = false;
-                                });
-                                return;
-                              }
 
                               // Proceed with registration if email is unique
                               await AuthMethods().registerUser(
@@ -340,12 +329,12 @@ class _SignupScreenState extends State<SignupScreen> {
                                 email: _emailController.text,
                                 password: _passwordController.text,
                               );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (builder) =>
-                                        const CompleteProfile()),
-                              );
+                              // Navigator.push(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //       builder: (builder) =>
+                              //           const CompleteProfile()),
+                              // );
                             } catch (e) {
                               showMessageBar(e.toString(), context);
                             }
