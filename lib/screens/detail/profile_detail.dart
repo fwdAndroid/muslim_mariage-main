@@ -234,6 +234,38 @@ class _ProfileDetailState extends State<ProfileDetail> {
                       ),
                     ),
                   ),
+                  //About Yourself
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Card(
+                          elevation: 2,
+                          child: Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'About User',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  widget.yourSelf,
+                                  style: TextStyle(
+                                    color: black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )),
                   // Additional Information
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -265,7 +297,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                       : hasPendingRequest
                           ? Center(
                               child: Text(
-                                "Chat request already sent. Please wait for acceptance or rejection.",
+                                "Digital Rishta Bheja Gaya Hai.",
                                 style: TextStyle(color: Colors.grey[700]),
                                 textAlign: TextAlign.center,
                               ),

@@ -220,106 +220,133 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            '${data['fullName']}',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 22,
-                                              color: textColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              Colors.transparent,
+                                              Colors.black.withOpacity(0.4),
+                                            ],
                                           ),
-                                          Text(
-                                            '$age yrs',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: textColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            data['sect'] + " Islam",
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: textColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            data['maritalStatus'],
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: textColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text(
-                                            data['location'],
-                                            style: GoogleFonts.poppins(
-                                              fontSize: 14,
-                                              color: textColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Center(
-                                            child: IconButton(
-                                              iconSize: 50,
-                                              onPressed: () async {
-                                                final docRef = FirebaseFirestore
-                                                    .instance
-                                                    .collection("users")
-                                                    .doc(data['uid']);
-
-                                                if (isFavorite) {
-                                                  await docRef.update({
-                                                    "favorite":
-                                                        FieldValue.arrayRemove(
-                                                            [currentUserId]),
-                                                  });
-
-                                                  setState(() {
-                                                    isFavorite = false;
-                                                  });
-
-                                                  Fluttertoast.showToast(
-                                                    backgroundColor: red,
-                                                    msg:
-                                                        "Removed ${data['fullName']} from your favorite list",
-                                                    textColor: colorWhite,
-                                                  );
-                                                } else {
-                                                  await docRef.update({
-                                                    "favorite":
-                                                        FieldValue.arrayUnion(
-                                                            [currentUserId]),
-                                                  });
-
-                                                  setState(() {
-                                                    isFavorite = true;
-                                                  });
-
-                                                  Fluttertoast.showToast(
-                                                    backgroundColor: mainColor,
-                                                    msg:
-                                                        "Added ${data['fullName']} to your favorite list",
-                                                    textColor: colorWhite,
-                                                  );
-                                                }
-                                              },
-                                              icon: Icon(
-                                                Icons.favorite,
-                                                color: isFavorite
-                                                    ? Colors.red
-                                                    : iconColor,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '${data['fullName']}',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 22,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
-                                            ),
-                                          )
-                                        ],
+                                              Text(
+                                                '$age yrs',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                data['sect'],
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                data['cast'],
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                data['maritalStatus'],
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text(
+                                                data['location'],
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Center(
+                                                child: IconButton(
+                                                  iconSize: 50,
+                                                  onPressed: () async {
+                                                    final docRef =
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection("users")
+                                                            .doc(data['uid']);
+
+                                                    if (isFavorite) {
+                                                      await docRef.update({
+                                                        "favorite": FieldValue
+                                                            .arrayRemove([
+                                                          currentUserId
+                                                        ]),
+                                                      });
+
+                                                      setState(() {
+                                                        isFavorite = false;
+                                                      });
+
+                                                      Fluttertoast.showToast(
+                                                        backgroundColor: red,
+                                                        msg:
+                                                            "Removed ${data['fullName']} from your favorite list",
+                                                        textColor: colorWhite,
+                                                      );
+                                                    } else {
+                                                      await docRef.update({
+                                                        "favorite": FieldValue
+                                                            .arrayUnion([
+                                                          currentUserId
+                                                        ]),
+                                                      });
+
+                                                      setState(() {
+                                                        isFavorite = true;
+                                                      });
+
+                                                      Fluttertoast.showToast(
+                                                        backgroundColor:
+                                                            mainColor,
+                                                        msg:
+                                                            "Added ${data['fullName']} to your favorite list",
+                                                        textColor: colorWhite,
+                                                      );
+                                                    }
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.favorite,
+                                                    color: isFavorite
+                                                        ? Colors.red
+                                                        : iconColor,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],

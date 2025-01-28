@@ -59,7 +59,7 @@ class _UploadPhotoState extends State<UploadPhoto> {
       // Use a gender-specific placeholder image
       bridePhotoUrl = gender == "Female"
           ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s" // Fe placeholder URL
-          : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s"; // Male placeholder URL
+          : "https://st3.depositphotos.com/7646640/37548/v/450/depositphotos_375486194-stock-illustration-arab-muslim-man-icon-ramadan.jpg"; // Male placeholder URL
     } else {
       // Show a loading indicator
       showDialog(
@@ -165,7 +165,7 @@ class _UploadPhotoState extends State<UploadPhoto> {
                                   ? const NetworkImage(
                                       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9xOHT0gJhCdYBdiXzrc-FX0UVMLKFC6sp4A&s")
                                   : const NetworkImage(
-                                      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyVrSvHyKc9hnN3JZlCRW-zrB5IwquDfCv7Q&s")),
+                                      "https://st3.depositphotos.com/7646640/37548/v/450/depositphotos_375486194-stock-illustration-arab-muslim-man-icon-ramadan.jpg")),
                     ),
                   ],
                 ),
