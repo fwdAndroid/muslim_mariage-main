@@ -135,7 +135,7 @@ class _ReceivedScreenState extends State<ReceivedScreen> {
                         backgroundImage: NetworkImage(data['userPhoto']),
                       ),
                       title: Text(data['userName'] ?? 'No Name'),
-                      subtitle: Text("Status: Pending"),
+                      subtitle: Text("Status: Received"),
                     ),
                   );
                 },

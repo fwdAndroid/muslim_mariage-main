@@ -14,7 +14,6 @@ class _SendScreenState extends State<SendScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(),
         body: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection("chats")
@@ -37,7 +36,7 @@ class _SendScreenState extends State<SendScreen> {
                       size: 120,
                       color: mainColor,
                     ),
-                    Text('No Chat Request Send',
+                    Text('No Chat Request Sent',
                         style: TextStyle(
                           color: mainColor,
                           fontSize: 20,
