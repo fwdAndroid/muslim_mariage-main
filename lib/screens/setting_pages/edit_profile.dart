@@ -6,9 +6,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:muslim_mariage/screens/main/main_dashboard.dart';
+import 'package:muslim_mariage/screens/setting_pages/change_id.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
+import 'package:muslim_mariage/widgets/text_widget.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -20,9 +22,12 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
-  TextEditingController qualificationController = TextEditingController();
+  TextEditingController _userNameController = TextEditingController();
+  TextEditingController _qualificationController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  TextEditingController _jobOccupationController = TextEditingController();
   bool _isLoading = false;
   Uint8List? _image;
   String? imageUrl;
@@ -44,13 +49,20 @@ class _EditProfileState extends State<EditProfile> {
 
     // Update the controllers with the fetched data
     setState(() {
-      descriptionController.text = data['aboutYourself'] ?? '';
-      phoneController.text =
-          (data['contactNumber'] ?? ''); // Convert int to string
-      nameController.text = data['fullName'] ?? ''; // Convert int to string
+      descriptionController.text =
+          data['aboutYourself'] ?? 'Not Information Available';
+      phoneController.text = (data['contactNumber'] ??
+          'Not Information Available'); // Convert int to string
+      _userNameController.text = data['fullName'] ??
+          'Not Information Available'; // Convert int to string
       imageUrl = data['image'];
-      qualificationController.text = data['qualification'] ?? '';
-      locationController.text = data['locationController'] ?? '';
+      _qualificationController.text =
+          data['qualification'] ?? 'Not Information Available';
+      locationController.text = data['location'] ?? 'INDIA';
+      _heightController.text = data['height'] ?? "Not Information Available";
+      _controller.text = data['salary'] ?? "Not Information Available";
+      _jobOccupationController.text =
+          data['jobOccupation'] ?? "Not Information Available";
     });
   }
 
@@ -75,6 +87,17 @@ class _EditProfileState extends State<EditProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (builder) => ChangeID()));
+              },
+              child: Text(
+                "Change ID",
+                style: TextStyle(color: mainColor),
+              ))
+        ],
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
@@ -119,82 +142,63 @@ class _EditProfileState extends State<EditProfile> {
               ),
               // Profile Picture
 
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
 
               // Name Field
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: "Name",
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    hintText: "Your Name",
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
+              buildTextField('Full Name', _userNameController, Icons.person),
+              const SizedBox(height: 12),
 
               // Number Field
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: "NUMBER",
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    hintText: "Contact Number",
-                    prefixIcon: const Icon(Icons.phone),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+              TextFormField(
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Phone number is required';
+                  } else if (value.length != 10) {
+                    return 'Phone number must be exactly 10 characters long';
+                  }
+                  return null;
+                },
+                controller: phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: "NUMBER",
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  hintText: "Contact Number",
+                  prefixIcon: const Icon(Icons.phone),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: qualificationController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: "Qualification",
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    hintText: "Qualification",
-                    prefixIcon: const Icon(Icons.edit),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
+              buildTextField('Qualification', _qualificationController, null),
+              const SizedBox(height: 12),
+              buildTextField(
+                  'Job Occupation', _jobOccupationController, Icons.work),
+              const SizedBox(height: 12),
               // Name Field
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: locationController,
-                  decoration: InputDecoration(
-                    labelText: "Location",
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-                    hintText: "Location",
-                    prefixIcon: const Icon(Icons.location_pin),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
+              TextField(
+                controller: locationController,
+                decoration: InputDecoration(
+                  labelText: "Location",
+                  labelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  hintText: "Location",
+                  prefixIcon: const Icon(Icons.location_pin),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 12),
+              buildTextFieldNumber('Height', _heightController, null),
+              const SizedBox(height: 12),
+              buildTextFieldNumber('Monthly Income', _controller, null),
+              const SizedBox(height: 12),
 
               // Description Field
               TextField(
                 controller: descriptionController,
-                maxLines: 4,
+                maxLines: 12,
                 decoration: InputDecoration(
                   labelText: "DESCRIPTION",
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -235,13 +239,17 @@ class _EditProfileState extends State<EditProfile> {
                                 .doc(FirebaseAuth.instance.currentUser!
                                     .uid) // Use widget.uuid here
                                 .update({
-                              "fullName": nameController.text,
+                              "fullName": _userNameController.text,
                               "aboutYourself": descriptionController
                                   .text, // Convert string to int
                               "contactNumber":
                                   phoneController.text, // Convert string to int
                               "image": downloadUrl,
-                              "location": locationController.text
+                              "location": locationController.text,
+                              "salary": _controller.text,
+                              "height": _heightController.text,
+                              "jobOccupation": _jobOccupationController.text,
+                              "qualification": _qualificationController.text
                             });
                             showMessageBar(
                                 "Profile Update Successfully", context);
