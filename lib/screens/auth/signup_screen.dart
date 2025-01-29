@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/auth/login_screen.dart';
-import 'package:muslim_mariage/screens/profile/complete_profile.dart';
 import 'package:muslim_mariage/services/auth_methods.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';

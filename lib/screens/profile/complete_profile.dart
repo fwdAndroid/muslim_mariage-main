@@ -6,7 +6,8 @@ import 'package:muslim_mariage/screens/profile/upload_photo.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart'; // Import SpinKit for stylish loader
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:muslim_mariage/widgets/text_widget.dart'; // Import SpinKit for stylish loader
 
 class CompleteProfile extends StatefulWidget {
   const CompleteProfile({super.key});
@@ -71,17 +72,17 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   ['Self', 'Father', 'Mother', 'Brother', "Uncle"],
                   initialValue: _profileCreator),
               const SizedBox(height: 12),
-              _buildTextField('Full Name', _userNameController, Icons.person),
+              buildTextField('Full Name', _userNameController, Icons.person),
               const SizedBox(height: 12),
-              _buildTextField('Father Name', _fatherController, Icons.person),
+              buildTextField('Father Name', _fatherController, Icons.person),
               const SizedBox(height: 12),
-              _buildTextField('Mother Name', _motherController, Icons.person),
+              buildTextField('Mother Name', _motherController, Icons.person),
               const SizedBox(height: 12),
-              _buildTextField('Cast', _baradhariController, null),
+              buildTextField('Cast', _baradhariController, null),
               const SizedBox(height: 12),
-              _buildTextField('Height', _heightController, null),
+              buildTextFieldNumber('Height', _heightController, null),
               const SizedBox(height: 12),
-              _buildTextField('Monthly Salary', _controller, null),
+              buildTextFieldNumber('Monthly Income', _controller, null),
               const SizedBox(height: 12),
               TextField(
                 onTap: () async {
@@ -122,12 +123,12 @@ class _CompleteProfileState extends State<CompleteProfile> {
                   ['UnMarried', 'Married', 'Divorced', 'Widowed'],
                   initialValue: _selectedMaritalStatus),
               const SizedBox(height: 12),
-              _buildTextField('Qualification', _qualificationController, null),
+              buildTextField('Qualification', _qualificationController, null),
               const SizedBox(height: 12),
-              _buildTextField(
+              buildTextField(
                   'Job Occupation', _jobOccupationController, Icons.work),
               const SizedBox(height: 12),
-              _buildTextField('About Yourself', _yourselfController, null,
+              buildTextField('About Yourself', _yourselfController, null,
                   maxLines: 4),
               const SizedBox(height: 20),
               SaveButton(
@@ -152,13 +153,14 @@ class _CompleteProfileState extends State<CompleteProfile> {
     // Check if name fields have at least 4 characters
     if (_fatherController.text.length < 4 ||
         _motherController.text.length < 4) {
-      _showAlert('Father and Mother names must be at least 4 characters long.');
+      showAlert('Father and Mother names must be at least 4 characters long.',
+          context);
       return;
     }
 
     // Check if Date of Birth is selected and calculate the age
     if (_dobController.text.isEmpty) {
-      _showAlert('Please select your Date of Birth.');
+      showAlert('Please select your Date of Birth.', context);
       return;
     }
 
@@ -171,10 +173,10 @@ class _CompleteProfileState extends State<CompleteProfile> {
 
     // Age validation based on gender
     if (_selectedGender == 'Female' && age < 18) {
-      _showAlert('Females must be at least 18 years old.');
+      showAlert('Females must be at least 18 years old.', context);
       return;
     } else if (_selectedGender == 'Male' && age < 21) {
-      _showAlert('Males must be at least 21 years old.');
+      showAlert('Males must be at least 21 years old.', context);
       return;
     }
 
@@ -188,7 +190,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
         _yourselfController.text.isEmpty ||
         _baradhariController.text.isEmpty ||
         _heightController.text.isEmpty) {
-      _showAlert('Please fill all fields before continuing.');
+      showAlert('Please fill all fields before continuing.', context);
       return;
     }
 
@@ -216,47 +218,8 @@ class _CompleteProfileState extends State<CompleteProfile> {
       Navigator.push(context,
           MaterialPageRoute(builder: (builder) => const UploadPhoto()));
     }).catchError((error) {
-      _showAlert('Failed to save profile: $error');
+      showAlert('Failed to save profile: $error', context);
     });
-  }
-
-  void _showAlert(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextField(
-      String labelText, TextEditingController controller, IconData? icon,
-      {int maxLines = 1}) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      decoration: InputDecoration(
-        labelText: labelText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: mainColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: mainColor),
-        ),
-        prefixIcon: icon != null ? Icon(icon) : null,
-      ),
-    );
   }
 
   Widget _buildDropdownField(String labelText, List<String> items,
