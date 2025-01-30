@@ -348,7 +348,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 "Not Available",
                             "location": "INDIA",
                             "status": "pending",
-                            "favorite": []
+                            "favorite": [],
+                            "District": "Dehli",
+                            "taulka": "Dehli"
                           });
 
                           // Navigate to VerificationPage for new users

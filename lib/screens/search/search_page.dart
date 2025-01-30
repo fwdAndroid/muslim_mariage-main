@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:muslim_mariage/functions.dart';
 import 'package:muslim_mariage/screens/detail/profile_detail.dart';
+import 'package:muslim_mariage/screens/search/advanced_search.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 
 class SearchPage extends StatefulWidget {
@@ -38,6 +39,18 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (builder) => AdvancedSearch()));
+            },
+            child: Text(
+              "Advanced Search",
+              style: TextStyle(color: mainColor),
+            ),
+          )
+        ],
         title: Text('Search Users'),
       ),
       body: Column(

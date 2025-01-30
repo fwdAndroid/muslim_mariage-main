@@ -313,9 +313,9 @@ class _SignupScreenState extends State<SignupScreen> {
                           });
                           if (_formKey.currentState!.validate()) {
                             String address = _locationControllerC.text +
-                                "" +
+                                " " +
                                 _locationControllerA.text +
-                                "" +
+                                " " +
                                 _locationController.text;
 
                             try {
