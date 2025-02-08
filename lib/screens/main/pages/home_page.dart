@@ -209,14 +209,42 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                       child: data['image'] == null ||
                                               data['image'].isEmpty
-                                          ? Image.asset("assets/logo.png",
+                                          ? Image.asset(
+                                              "assets/logo.png",
                                               fit: BoxFit.cover,
                                               width: double.infinity,
-                                              height: double.infinity)
-                                          : Image.network(data['image'],
+                                              height: double.infinity,
+                                            )
+                                          : Image.network(
+                                              data['image'],
                                               fit: BoxFit.cover,
                                               width: double.infinity,
-                                              height: double.infinity),
+                                              height: double.infinity,
+                                              loadingBuilder:
+                                                  (BuildContext context,
+                                                      Widget child,
+                                                      ImageChunkEvent?
+                                                          loadingProgress) {
+                                                if (loadingProgress == null) {
+                                                  return child; // Image is loaded, return the image
+                                                } else {
+                                                  return Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      value: loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              (loadingProgress
+                                                                      .expectedTotalBytes ??
+                                                                  1)
+                                                          : null,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),

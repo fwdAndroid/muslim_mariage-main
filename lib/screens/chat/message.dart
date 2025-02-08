@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/chat/video_call_page.dart';
+import 'package:muslim_mariage/screens/detail/chat_profile.dart';
 import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
@@ -221,29 +222,39 @@ class _MessagesState extends State<Messages> {
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: Column(
-          children: [
-            const SizedBox(height: 3),
-            CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage(
+        title: GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (builder) => ChatProfile(
+                          friendId: widget.friendId,
+                        )));
+          },
+          child: Column(
+            children: [
+              const SizedBox(height: 3),
+              CircleAvatar(
+                radius: 20,
+                backgroundImage: NetworkImage(
+                  FirebaseAuth.instance.currentUser!.uid == widget.friendId
+                      ? widget.userPhoto
+                      : widget.friendImage,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
                 FirebaseAuth.instance.currentUser!.uid == widget.friendId
-                    ? widget.userPhoto
-                    : widget.friendImage,
+                    ? widget.userName
+                    : widget.friendName,
+                style: GoogleFonts.inter(
+                  fontWeight: FontWeight.w500,
+                  color: black,
+                  fontSize: 14,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              FirebaseAuth.instance.currentUser!.uid == widget.friendId
-                  ? widget.userName
-                  : widget.friendName,
-              style: GoogleFonts.inter(
-                fontWeight: FontWeight.w500,
-                color: black,
-                fontSize: 14,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       body: Column(

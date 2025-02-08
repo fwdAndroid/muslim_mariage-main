@@ -100,14 +100,19 @@ class _ProfileDetailState extends State<ProfileDetail> {
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
-          child: StreamBuilder<Object>(
-            stream: FirebaseFirestore.instance
+          child: FutureBuilder<DocumentSnapshot>(
+            future: FirebaseFirestore.instance
                 .collection("users")
                 .doc(FirebaseAuth.instance.currentUser!.uid)
-                .snapshots(),
+                .get(),
             builder: (context, AsyncSnapshot snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: Text(""));
+              if (snapshot.connectionState == ConnectionState.none) {
+                return Container(
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(),
+                );
               }
               if (!snapshot.hasData || snapshot.data == null) {
                 return const Center(child: Text('Loading'));
@@ -292,7 +297,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
                   ),
                   isLoading
                       ? const Center(
-                          child: CircularProgressIndicator(),
+                          child: Text("Please wait"),
                         )
                       : hasPendingRequest
                           ? Center(
@@ -307,9 +312,8 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                 onTap: () async {
                                   if (_userStatus == 'accepted') {
                                     setState(() {
-                                      isLoading = true;
+                                      if (mounted) isLoading = true;
                                     });
-
                                     Fluttertoast.showToast(
                                       msg: "Digital Rishta Bheje",
                                       toastLength: Toast.LENGTH_SHORT,
@@ -334,10 +338,12 @@ class _ProfileDetailState extends State<ProfileDetail> {
                                       "isAccepted": false,
                                     });
 
-                                    setState(() {
-                                      isLoading = false;
-                                      hasPendingRequest = true;
-                                    });
+                                    if (mounted) {
+                                      setState(() {
+                                        isLoading = false;
+                                        hasPendingRequest = true;
+                                      });
+                                    }
                                   } else {
                                     Fluttertoast.showToast(
                                       msg: "You are not verified by the admin.",
