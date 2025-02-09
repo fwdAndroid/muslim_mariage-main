@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:muslim_mariage/screens/auth/login_screen.dart';
+import 'package:muslim_mariage/screens/auth/signup_screen.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _onSignIn() {
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+        context, MaterialPageRoute(builder: (context) => SignupScreen()));
   }
 
   void _onSkip() {
@@ -101,7 +102,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: _currentPage == onboardingData.length - 1
                 ? ElevatedButton(
                     onPressed: _onSignIn,
-                    child: const Text("Sign In"),
+                    child: const Text("Create Account Free"),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
