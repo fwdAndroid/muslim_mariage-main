@@ -159,7 +159,9 @@ class _HomePageState extends State<HomePage> {
                             : "Unknown";
 
                         final List<dynamic> favorites = data['favorite'] ?? [];
+                        final List<dynamic> stars = data['star'] ?? [];
                         bool isFavorite = favorites.contains(currentUserId);
+                        bool isStar = stars.contains(currentUserId);
 
                         return GestureDetector(
                           onTap: () {
@@ -316,60 +318,152 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               ),
                                               Center(
-                                                child: IconButton(
-                                                  iconSize: 50,
-                                                  onPressed: () async {
-                                                    final docRef =
-                                                        FirebaseFirestore
-                                                            .instance
-                                                            .collection("users")
-                                                            .doc(data['uid']);
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    // Favorite Icon
+                                                    IconButton(
+                                                      iconSize: 50,
+                                                      onPressed: () async {
+                                                        final docRef =
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "users")
+                                                                .doc(data[
+                                                                    'uid']);
 
-                                                    if (isFavorite) {
-                                                      await docRef.update({
-                                                        "favorite": FieldValue
-                                                            .arrayRemove([
-                                                          currentUserId
-                                                        ]),
-                                                      });
+                                                        if (isFavorite) {
+                                                          await docRef.update({
+                                                            "favorite": FieldValue
+                                                                .arrayRemove([
+                                                              currentUserId
+                                                            ]),
+                                                          });
 
-                                                      setState(() {
-                                                        isFavorite = false;
-                                                      });
+                                                          setState(() {
+                                                            isFavorite = false;
+                                                          });
 
-                                                      Fluttertoast.showToast(
-                                                        backgroundColor: red,
-                                                        msg:
-                                                            "Removed ${data['fullName']} from your favorite list",
-                                                        textColor: colorWhite,
-                                                      );
-                                                    } else {
-                                                      await docRef.update({
-                                                        "favorite": FieldValue
-                                                            .arrayUnion([
-                                                          currentUserId
-                                                        ]),
-                                                      });
+                                                          Fluttertoast
+                                                              .showToast(
+                                                            backgroundColor:
+                                                                red,
+                                                            msg:
+                                                                "Removed ${data['fullName']} from your favorite list",
+                                                            textColor:
+                                                                colorWhite,
+                                                          );
+                                                        } else {
+                                                          await docRef.update({
+                                                            "favorite":
+                                                                FieldValue
+                                                                    .arrayUnion([
+                                                              currentUserId
+                                                            ]),
+                                                          });
 
-                                                      setState(() {
-                                                        isFavorite = true;
-                                                      });
+                                                          setState(() {
+                                                            isFavorite = true;
+                                                          });
 
-                                                      Fluttertoast.showToast(
-                                                        backgroundColor:
-                                                            mainColor,
-                                                        msg:
-                                                            "Added ${data['fullName']} to your favorite list",
-                                                        textColor: colorWhite,
-                                                      );
-                                                    }
-                                                  },
-                                                  icon: Icon(
-                                                    Icons.favorite,
-                                                    color: isFavorite
-                                                        ? Colors.red
-                                                        : iconColor,
-                                                  ),
+                                                          Fluttertoast
+                                                              .showToast(
+                                                            backgroundColor:
+                                                                mainColor,
+                                                            msg:
+                                                                "Added ${data['fullName']} to your favorite list",
+                                                            textColor:
+                                                                colorWhite,
+                                                          );
+                                                        }
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.favorite,
+                                                        color: isFavorite
+                                                            ? Colors.red
+                                                            : iconColor,
+                                                      ),
+                                                    ),
+                                                    // Star Icon
+                                                    IconButton(
+                                                      iconSize: 40,
+                                                      onPressed: () async {
+                                                        final docRef =
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    "users")
+                                                                .doc(data[
+                                                                    'uid']);
+
+                                                        if (isStar) {
+                                                          await docRef.update({
+                                                            "star": FieldValue
+                                                                .arrayRemove([
+                                                              currentUserId
+                                                            ]),
+                                                          });
+
+                                                          setState(() {
+                                                            isStar = false;
+                                                          });
+
+                                                          Fluttertoast
+                                                              .showToast(
+                                                            backgroundColor:
+                                                                red,
+                                                            msg:
+                                                                "Removed ${data['fullName']} from your star list",
+                                                            textColor:
+                                                                colorWhite,
+                                                          );
+                                                        } else {
+                                                          await docRef.update({
+                                                            "star": FieldValue
+                                                                .arrayUnion([
+                                                              currentUserId
+                                                            ]),
+                                                          });
+
+                                                          setState(() {
+                                                            isStar = true;
+                                                          });
+
+                                                          Fluttertoast
+                                                              .showToast(
+                                                            backgroundColor:
+                                                                mainColor,
+                                                            msg:
+                                                                "Added ${data['fullName']} to your star list",
+                                                            textColor:
+                                                                colorWhite,
+                                                          );
+                                                        }
+                                                      },
+                                                      icon: Icon(
+                                                        Icons.star,
+                                                        color: isStar
+                                                            ? Colors.yellow
+                                                            : iconColor,
+                                                      ),
+                                                    ),
+                                                    // Chat Icon
+                                                    IconButton(
+                                                      iconSize: 40,
+                                                      onPressed: () {
+                                                        // Your action for chat icon
+                                                      },
+                                                      icon: Icon(
+                                                        Icons
+                                                            .chat_bubble_outline,
+                                                        color:
+                                                            mainColor, // Chat icon color
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               )
                                             ],

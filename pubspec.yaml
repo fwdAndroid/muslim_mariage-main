@@ -34,8 +34,6 @@ dependencies:
   cloud_firestore: ^5.6.1
   country_state_city_picker: ^1.2.8
   cupertino_icons: ^1.0.8
-  delayed_display: ^2.0.0
-  easy_stepper: ^0.8.5+1
   firebase_auth: ^5.4.0
   firebase_core: ^3.10.0
   firebase_storage: ^12.4.0
