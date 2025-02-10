@@ -11,6 +11,9 @@ import 'package:muslim_mariage/screens/detail/chat_profile.dart';
 import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/text_form_field.dart';
+// Add flutter_sound and permission_handler:
+import 'package:flutter_sound/flutter_sound.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Messages extends StatefulWidget {
   final String userId;
@@ -42,6 +45,13 @@ class _MessagesState extends State<Messages> {
   TextEditingController messageController = TextEditingController();
   double uploadProgress = 0.0;
 
+  // Audio recording and playback variables
+  FlutterSoundRecorder? _audioRecorder;
+  FlutterSoundPlayer? _audioPlayer;
+  bool isRecording = false;
+  bool _isPlayerInited = false;
+  String? _currentlyPlayingUrl;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +59,35 @@ class _MessagesState extends State<Messages> {
         ? "${widget.friendId}-${widget.userId}"
         : "${widget.userId}-${widget.friendId}";
     print(widget.friendName);
+    initAudioRecorder();
+    initAudioPlayer();
+  }
+
+  Future<void> initAudioRecorder() async {
+    _audioRecorder = FlutterSoundRecorder();
+    await _audioRecorder!.openRecorder();
+    // Request microphone permission
+    var status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw 'Microphone permission not granted';
+    }
+  }
+
+  Future<void> initAudioPlayer() async {
+    _audioPlayer = FlutterSoundPlayer();
+    await _audioPlayer!.openPlayer();
+    setState(() {
+      _isPlayerInited = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    messageController.dispose();
+    scrollController.dispose();
+    _audioRecorder?.closeRecorder();
+    _audioPlayer?.closePlayer();
+    super.dispose();
   }
 
   Future<void> pickAndPreviewImage() async {
@@ -110,16 +149,75 @@ class _MessagesState extends State<Messages> {
     try {
       final snapshot = await uploadTask;
       final downloadUrl = await snapshot.ref.getDownloadURL();
-      sendMessage(downloadUrl, 1); // Send the image message
+      sendMessage(downloadUrl, 1); // type 1 for image messages
     } catch (e) {
       print('Error uploading image: $e');
     }
 
     setState(() {
-      uploadProgress = 0.0; // Reset progress after upload
+      uploadProgress = 0.0; // Reset progress
     });
   }
 
+  // AUDIO RECORDING METHODS
+
+  Future<void> startRecording() async {
+    try {
+      await _audioRecorder!.startRecorder(
+        toFile: 'audio_message.aac',
+      );
+      setState(() {
+        isRecording = true;
+      });
+    } catch (e) {
+      print('Error starting recording: $e');
+    }
+  }
+
+  Future<void> stopRecording() async {
+    try {
+      String? path = await _audioRecorder!.stopRecorder();
+      setState(() {
+        isRecording = false;
+      });
+      if (path != null) {
+        uploadAudio(File(path));
+      }
+    } catch (e) {
+      print('Error stopping recording: $e');
+    }
+  }
+
+  Future<void> uploadAudio(File file) async {
+    final fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('chat_audio')
+        .child(widget.chatId)
+        .child(fileName);
+
+    final uploadTask = storageRef.putFile(file);
+
+    uploadTask.snapshotEvents.listen((TaskSnapshot snapshot) {
+      setState(() {
+        uploadProgress = snapshot.bytesTransferred / snapshot.totalBytes!;
+      });
+    });
+
+    try {
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      sendMessage(downloadUrl, 2); // type 2 for audio messages
+    } catch (e) {
+      print('Error uploading audio: $e');
+    }
+
+    setState(() {
+      uploadProgress = 0.0;
+    });
+  }
+
+  // SEND MESSAGE METHOD (includes a "status" field)
   void sendMessage(String content, int type) {
     if (content.trim().isNotEmpty) {
       messageController.clear();
@@ -142,9 +240,10 @@ class _MessagesState extends State<Messages> {
             "senderId": senderId,
             "receiverId": receiverId,
             "time": DateTime.now().millisecondsSinceEpoch.toString(),
-            'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-            'content': content,
-            'type': type
+            "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+            "content": content,
+            "type": type,
+            "status": "sent", // Default status when sent
           },
         );
       }).then((value) {
@@ -177,7 +276,9 @@ class _MessagesState extends State<Messages> {
 
     final chatDocSnapshot = await chatDocRef.get();
     if (chatDocSnapshot.exists) {
-      String displayMessage = messageType == 1 ? 'Image sent' : messageContent;
+      String displayMessage = messageType == 1
+          ? 'Image sent'
+          : (messageType == 2 ? 'Audio sent' : messageContent);
 
       await chatDocRef.update({
         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
@@ -187,6 +288,55 @@ class _MessagesState extends State<Messages> {
         print("Failed to update last message: $error");
       });
     }
+  }
+
+  // Build a widget for audio messages (with play/pause)
+  Widget _buildAudioMessage(String audioUrl, bool isCurrentUser) {
+    bool isPlaying =
+        (_currentlyPlayingUrl == audioUrl && _audioPlayer!.isPlaying);
+    return Container(
+      width: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color:
+            isCurrentUser ? const Color(0xfff0f2f9) : const Color(0xff668681),
+      ),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              isPlaying ? Icons.pause : Icons.play_arrow,
+              color: isCurrentUser ? Colors.black : Colors.white,
+            ),
+            onPressed: () async {
+              if (isPlaying) {
+                await _audioPlayer!.stopPlayer();
+                setState(() {
+                  _currentlyPlayingUrl = null;
+                });
+              } else {
+                if (_currentlyPlayingUrl != null && _audioPlayer!.isPlaying) {
+                  await _audioPlayer!.stopPlayer();
+                }
+                setState(() {
+                  _currentlyPlayingUrl = audioUrl;
+                });
+                await _audioPlayer!.startPlayer(
+                  fromURI: audioUrl,
+                  whenFinished: () {
+                    setState(() {
+                      _currentlyPlayingUrl = null;
+                    });
+                  },
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -269,62 +419,86 @@ class _MessagesState extends State<Messages> {
             builder:
                 (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
               if (snapshot.hasData) {
-                return snapshot.data!.docs.isEmpty
-                    ? const Expanded(
-                        child: Center(child: Text("No messages yet.")),
-                      )
-                    : Expanded(
-                        child: ListView.builder(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 14),
-                          reverse: false,
-                          controller: scrollController,
-                          shrinkWrap: true,
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, index) {
-                            var ds = snapshot.data!.docs[index];
-                            final bool isCurrentUserSender =
-                                ds.get("senderId") == currentUserId;
-                            final bool isImageMessage = ds.get("type") == 1;
+                if (snapshot.data!.docs.isEmpty) {
+                  return const Expanded(
+                    child: Center(child: Text("No messages yet.")),
+                  );
+                } else {
+                  return Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 14),
+                      controller: scrollController,
+                      itemCount: snapshot.data!.docs.length,
+                      itemBuilder: (context, index) {
+                        var ds = snapshot.data!.docs[index];
+                        final int messageType = ds.get("type");
+                        final bool isCurrentUserSender =
+                            ds.get("senderId") == currentUserId;
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: Align(
-                                alignment: isCurrentUserSender
-                                    ? Alignment.topRight
-                                    : Alignment.topLeft,
-                                child: Column(
-                                  crossAxisAlignment: isCurrentUserSender
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
+                        // If this is a received message and it is not yet marked "seen," update it.
+                        if (!isCurrentUserSender &&
+                            ds.get("status") != 'seen') {
+                          Future.microtask(() {
+                            FirebaseFirestore.instance
+                                .collection('messages')
+                                .doc(groupChatId)
+                                .collection(groupChatId)
+                                .doc(ds.id)
+                                .update({'status': 'seen'});
+                          });
+                        }
+
+                        Widget messageContentWidget;
+                        if (messageType == 1) {
+                          // Image message
+                          messageContentWidget = Image.network(
+                            ds.get("content"),
+                            fit: BoxFit.cover,
+                            height: 160,
+                            width: 200,
+                          );
+                        } else if (messageType == 2) {
+                          // Audio message
+                          messageContentWidget = _buildAudioMessage(
+                              ds.get("content"), isCurrentUserSender);
+                        } else {
+                          // Text message
+                          messageContentWidget = Text(
+                            ds.get("content"),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: isCurrentUserSender ? black : colorWhite,
+                            ),
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Align(
+                            alignment: isCurrentUserSender
+                                ? Alignment.topRight
+                                : Alignment.topLeft,
+                            child: Column(
+                              crossAxisAlignment: isCurrentUserSender
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: isCurrentUserSender
+                                        ? const Color(0xfff0f2f9)
+                                        : const Color(0xff668681),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: messageContentWidget,
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Container(
-                                      width: 200,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16),
-                                        color: isCurrentUserSender
-                                            ? const Color(0xfff0f2f9)
-                                            : const Color(0xff668681),
-                                      ),
-                                      padding: const EdgeInsets.all(12),
-                                      child: isImageMessage
-                                          ? Image.network(
-                                              ds.get("content"),
-                                              fit: BoxFit.cover,
-                                              height: 160,
-                                              width: 200,
-                                            )
-                                          : Text(
-                                              ds.get("content"),
-                                              style: TextStyle(
-                                                fontSize: 15,
-                                                color: isCurrentUserSender
-                                                    ? black
-                                                    : colorWhite,
-                                              ),
-                                            ),
-                                    ),
-                                    const SizedBox(height: 4),
                                     Text(
                                       DateFormat.jm().format(
                                         DateTime.fromMillisecondsSinceEpoch(
@@ -336,17 +510,37 @@ class _MessagesState extends State<Messages> {
                                         color: Colors.grey,
                                       ),
                                     ),
+                                    if (isCurrentUserSender)
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 4),
+                                        child: Icon(
+                                          ds.get("status") == 'seen'
+                                              ? Icons.done_all
+                                              : Icons.done,
+                                          color: ds.get("status") == 'seen'
+                                              ? Colors.blue
+                                              : Colors.grey,
+                                          size: 16,
+                                        ),
+                                      ),
                                   ],
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
               } else if (snapshot.hasError) {
-                return const Center(child: Icon(Icons.error_outline));
+                return const Expanded(
+                  child: Center(child: Icon(Icons.error_outline)),
+                );
               } else {
-                return const Center(child: CircularProgressIndicator());
+                return const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                );
               }
             },
           ),
@@ -368,6 +562,20 @@ class _MessagesState extends State<Messages> {
                   IconButton(
                     icon: Icon(Icons.photo, color: mainColor),
                     onPressed: pickAndPreviewImage,
+                  ),
+                  // Audio recording button: tap to start (mic icon) or stop (stop icon)
+                  IconButton(
+                    icon: Icon(
+                      isRecording ? Icons.stop : Icons.mic,
+                      color: mainColor,
+                    ),
+                    onPressed: () {
+                      if (isRecording) {
+                        stopRecording();
+                      } else {
+                        startRecording();
+                      }
+                    },
                   ),
                   const SizedBox(width: 10),
                   FloatingActionButton(
