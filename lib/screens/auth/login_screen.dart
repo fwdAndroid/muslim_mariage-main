@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:muslim_mariage/screens/auth/forgot_password.dart';
 import 'package:muslim_mariage/screens/auth/signup_screen.dart';
 import 'package:muslim_mariage/screens/main/main_dashboard.dart';
-import 'package:muslim_mariage/screens/profile/complete_profile.dart';
 import 'package:muslim_mariage/screens/steps/stepperclass.dart';
 import 'package:muslim_mariage/services/auth_methods.dart';
 import 'package:muslim_mariage/utils/colors.dart';
@@ -328,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (builder) =>
-                                        const CompleteProfile()),
+                                        CompleteProfileStepper()),
                               );
                             } else {
                               // Navigate to MainDashboard if everything is complete
@@ -361,7 +360,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (builder) => CompleteProfile()),
+                                  builder: (builder) =>
+                                      CompleteProfileStepper()),
                             );
                           }
                         } catch (e) {

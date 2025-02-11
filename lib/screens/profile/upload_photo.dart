@@ -41,7 +41,7 @@ class _UploadPhotoState extends State<UploadPhoto> {
   }
 
   Future<void> _pickImage(bool isBridePhoto) async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
       setState(() {
