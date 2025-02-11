@@ -30,6 +30,15 @@ class _SettingPageState extends State<SettingPage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          Center(
+            child: Text(
+              "Not Verified ",
+              style: TextStyle(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
           const SectionHeader(title: "Account"),
           GestureDetector(
             onTap: () {

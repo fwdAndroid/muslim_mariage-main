@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -292,14 +293,20 @@ class _MessagesState extends State<Messages> {
 
   // Build a widget for audio messages (with play/pause)
   Widget _buildAudioMessage(String audioUrl, bool isCurrentUser) {
+    final playerController = PlayerController();
+
+    // Initialize the waveform player properly
+    playerController.extractWaveformData(
+      path: audioUrl,
+    );
+
     bool isPlaying =
         (_currentlyPlayingUrl == audioUrl && _audioPlayer!.isPlaying);
+
     return Container(
-      width: 200,
+      height: 80,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color:
-            isCurrentUser ? const Color(0xfff0f2f9) : const Color(0xff668681),
       ),
       padding: const EdgeInsets.all(12),
       child: Row(
@@ -308,32 +315,27 @@ class _MessagesState extends State<Messages> {
           IconButton(
             icon: Icon(
               isPlaying ? Icons.pause : Icons.play_arrow,
-              color: isCurrentUser ? Colors.black : Colors.white,
+              color: isCurrentUser ? Colors.black : mainColor,
             ),
             onPressed: () async {
               if (isPlaying) {
                 await _audioPlayer!.stopPlayer();
-                setState(() {
-                  _currentlyPlayingUrl = null;
-                });
+                _currentlyPlayingUrl = null;
               } else {
                 if (_currentlyPlayingUrl != null && _audioPlayer!.isPlaying) {
                   await _audioPlayer!.stopPlayer();
                 }
-                setState(() {
-                  _currentlyPlayingUrl = audioUrl;
-                });
+                _currentlyPlayingUrl = audioUrl;
                 await _audioPlayer!.startPlayer(
                   fromURI: audioUrl,
                   whenFinished: () {
-                    setState(() {
-                      _currentlyPlayingUrl = null;
-                    });
+                    _currentlyPlayingUrl = null;
                   },
                 );
               }
             },
           ),
+          Image.asset("assets/wave.png", height: 80, width: 100)
         ],
       ),
     );
@@ -552,18 +554,6 @@ class _MessagesState extends State<Messages> {
               color: Colors.white,
               child: Row(
                 children: <Widget>[
-                  Expanded(
-                    child: TextFormInputField(
-                      controller: messageController,
-                      hintText: "Send a message",
-                      textInputType: TextInputType.name,
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.photo, color: mainColor),
-                    onPressed: pickAndPreviewImage,
-                  ),
-                  // Audio recording button: tap to start (mic icon) or stop (stop icon)
                   IconButton(
                     icon: Icon(
                       isRecording ? Icons.stop : Icons.mic,
@@ -577,16 +567,26 @@ class _MessagesState extends State<Messages> {
                       }
                     },
                   ),
+                  Expanded(
+                    child: TextFormInputField(
+                      controller: messageController,
+                      hintText: "Send  message",
+                      textInputType: TextInputType.name,
+                    ),
+                  ),
+
+                  // Audio recording button: tap to start (mic icon) or stop (stop icon)
+
                   const SizedBox(width: 10),
-                  FloatingActionButton(
-                    shape: const CircleBorder(),
+                  IconButton(
+                    icon: Icon(Icons.photo, color: mainColor),
+                    onPressed: pickAndPreviewImage,
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send, color: mainColor),
                     onPressed: () {
                       sendMessage(messageController.text.trim(), 0);
                     },
-                    backgroundColor: mainColor,
-                    elevation: 0,
-                    child:
-                        const Icon(Icons.send, color: Colors.white, size: 18),
                   ),
                 ],
               ),
