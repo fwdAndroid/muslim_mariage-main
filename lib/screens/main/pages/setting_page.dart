@@ -1,14 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:muslim_mariage/screens/payment/payment_page.dart';
 import 'package:muslim_mariage/screens/payment/subscription_page.dart';
+import 'package:muslim_mariage/screens/setting_pages/bocked_users.dart';
 import 'package:muslim_mariage/screens/setting_pages/edit_profile.dart';
 import 'package:muslim_mariage/screens/setting_pages/help.dart';
 import 'package:muslim_mariage/screens/setting_pages/notification_screen.dart';
 import 'package:muslim_mariage/screens/setting_pages/privacy_page.dart';
 import 'package:muslim_mariage/screens/setting_pages/star_page.dart';
-import 'package:muslim_mariage/screens/setting_pages/subscription_page.dart';
 import 'package:muslim_mariage/widgets/logout_widget.dart';
 
 class SettingPage extends StatefulWidget {
@@ -103,6 +102,16 @@ class _SettingPageState extends State<SettingPage> {
             child: const SettingsTile(
               icon: Icons.lock,
               title: "Privacy",
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (builder) => BlockedUsers()));
+            },
+            child: const SettingsTile(
+              icon: Icons.block,
+              title: "Blocked Users",
             ),
           ),
           GestureDetector(
