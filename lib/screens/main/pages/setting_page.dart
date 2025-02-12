@@ -7,6 +7,7 @@ import 'package:muslim_mariage/screens/setting_pages/edit_profile.dart';
 import 'package:muslim_mariage/screens/setting_pages/help.dart';
 import 'package:muslim_mariage/screens/setting_pages/notification_screen.dart';
 import 'package:muslim_mariage/screens/setting_pages/privacy_page.dart';
+import 'package:muslim_mariage/screens/setting_pages/star_page.dart';
 import 'package:muslim_mariage/screens/setting_pages/subscription_page.dart';
 import 'package:muslim_mariage/widgets/logout_widget.dart';
 
@@ -102,6 +103,16 @@ class _SettingPageState extends State<SettingPage> {
             child: const SettingsTile(
               icon: Icons.lock,
               title: "Privacy",
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (builder) => StarPage()));
+            },
+            child: const SettingsTile(
+              icon: Icons.star,
+              title: "Star List",
             ),
           ),
           const SizedBox(height: 16),

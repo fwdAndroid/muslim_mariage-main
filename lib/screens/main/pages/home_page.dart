@@ -454,7 +454,48 @@ class _HomePageState extends State<HomePage> {
                                                     IconButton(
                                                       iconSize: 40,
                                                       onPressed: () {
-                                                        // Your action for chat icon
+                                                        Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                                builder: (builder) => ProfileDetail(
+                                                                    height: data[
+                                                                        'height'],
+                                                                    idCard: data[
+                                                                        'idCard'],
+                                                                    salary: data[
+                                                                        'salary'],
+                                                                    friendMother:
+                                                                        data['motherName'] ??
+                                                                            "Not Available",
+                                                                    friendFather:
+                                                                        data['fatherName'] ??
+                                                                            "Not Available",
+                                                                    profileCreator:
+                                                                        data[
+                                                                            'profileCreator'],
+                                                                    maritalStatus:
+                                                                        data[
+                                                                            'maritalStatus'],
+                                                                    friendPhoto:
+                                                                        data[
+                                                                            'image'],
+                                                                    friendName:
+                                                                        data[
+                                                                            'fullName'],
+                                                                    friendId:
+                                                                        data[
+                                                                            'uid'],
+                                                                    friendDOB:
+                                                                        age,
+                                                                    jobOccupation:
+                                                                        data['jobOccupation'],
+                                                                    gender: data['gender'],
+                                                                    sect: data['sect'] ?? "Not Available",
+                                                                    cast: data['cast'] ?? "Not Available",
+                                                                    location: data['location'],
+                                                                    friendPhone: data['contactNumber'] ?? "Not Available",
+                                                                    friendQualification: data['qualification'] ?? "Not Available",
+                                                                    yourSelf: data['aboutYourself'] ?? "Not Available")));
                                                       },
                                                       icon: Icon(
                                                         Icons
