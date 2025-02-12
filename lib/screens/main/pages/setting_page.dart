@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:muslim_mariage/screens/payment/payment_page.dart';
+import 'package:muslim_mariage/screens/payment/subscription_page.dart';
 import 'package:muslim_mariage/screens/setting_pages/edit_profile.dart';
 import 'package:muslim_mariage/screens/setting_pages/help.dart';
 import 'package:muslim_mariage/screens/setting_pages/notification_screen.dart';
@@ -30,14 +34,39 @@ class _SettingPageState extends State<SettingPage> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          Center(
-            child: Text(
-              "Not Verified ",
-              style: TextStyle(
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser!.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const CircularProgressIndicator();
+              }
+
+              if (!snapshot.hasData ||
+                  snapshot.data == null ||
+                  !snapshot.data!.exists) {
+                return const Text(
+                  "User Not Found",
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                );
+              }
+
+              var status = snapshot.data!.get('status') ?? 'pending';
+              bool isAccepted = status.toLowerCase() == 'accepted';
+
+              return Center(
+                child: Text(
+                  isAccepted ? "Verified" : "Not Verified",
+                  style: TextStyle(
+                    color: isAccepted ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            },
           ),
           const SectionHeader(title: "Account"),
           GestureDetector(
@@ -79,8 +108,8 @@ class _SettingPageState extends State<SettingPage> {
           const SectionHeader(title: "Support & About"),
           GestureDetector(
             onTap: () {
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (builder) => SubscriptionPage()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (builder) => SubscriptionPage()));
             },
             child: const SettingsTile(
               icon: Icons.subscriptions,
