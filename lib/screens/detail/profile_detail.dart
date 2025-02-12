@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:muslim_mariage/screens/main/main_dashboard.dart';
+import 'package:muslim_mariage/screens/main/pages/home_page.dart';
 import 'package:muslim_mariage/screens/report/report_user.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
@@ -59,7 +61,7 @@ class _ProfileDetailState extends State<ProfileDetail> {
   bool isLoading = false;
   String _userStatus = '';
   bool hasPendingRequest = false;
-
+  bool isBlocked = false;
   @override
   void initState() {
     super.initState();
@@ -79,6 +81,38 @@ class _ProfileDetailState extends State<ProfileDetail> {
       setState(() {
         hasPendingRequest = !chatData['isAccepted']; // Check if it's pending
       });
+    }
+  }
+
+  Future<void> blockUser() async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      final userDoc =
+          FirebaseFirestore.instance.collection("users").doc(currentUserId);
+
+      await userDoc.update({
+        "blocked": FieldValue.arrayUnion([widget.friendId]),
+      });
+
+      setState(() {
+        isBlocked = true;
+      });
+
+      Fluttertoast.showToast(
+        backgroundColor: mainColor,
+        msg: "${widget.friendName} has been blocked",
+        textColor: Colors.white,
+      );
+      Navigator.push(
+          context, MaterialPageRoute(builder: (builder) => MainDashboard()));
+    } catch (e) {
+      print("Error blocking user: $e");
+      Fluttertoast.showToast(
+        backgroundColor: Colors.red,
+        msg: "Failed to block user",
+        textColor: Colors.white,
+      );
     }
   }
 
@@ -205,7 +239,11 @@ class _ProfileDetailState extends State<ProfileDetail> {
                       ),
                     ),
                   ),
-
+                  TextButton(
+                      onPressed: () async {
+                        blockUser();
+                      },
+                      child: Text("Block")),
                   // Basic Details
                   Padding(
                     padding: EdgeInsets.only(left: 8, right: 8, top: 8),

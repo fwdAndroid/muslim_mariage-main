@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   String _searchText = '';
   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
   String _currentUserGender = '';
-
+  Map<String, dynamic> _currentUserData = {};
   @override
   void initState() {
     super.initState();
@@ -117,19 +117,32 @@ class _HomePageState extends State<HomePage> {
                     }
 
                     final filteredDocs = snapshot.data!.docs.where((doc) {
-                      final Map<String, dynamic> data =
-                          doc.data() as Map<String, dynamic>;
-                      final fullName = data['fullName'] as String? ?? '';
-                      final caste = data['cast'] as String? ?? '';
-                      final sect = data['sect'] as String? ?? '';
-                      final profession = data['qualification'] as String? ?? '';
+                      final data = doc.data() as Map<String, dynamic>;
 
+                      // 1. Search filter
                       final searchLower = _searchText.toLowerCase();
+                      final matchesSearch = [
+                        data['fullName']?.toString().toLowerCase() ?? '',
+                        data['cast']?.toString().toLowerCase() ?? '',
+                        data['sect']?.toString().toLowerCase() ?? '',
+                        data['qualification']?.toString().toLowerCase() ?? '',
+                      ].any((field) => field.contains(searchLower));
 
-                      return fullName.toLowerCase().contains(searchLower) ||
-                          caste.toLowerCase().contains(searchLower) ||
-                          sect.toLowerCase().contains(searchLower) ||
-                          profession.toLowerCase().contains(searchLower);
+                      // 2. Blocking filter (NEW IMPROVED VERSION)
+                      final blockedUsers = List<String>.from(
+                          data['blocked']?.map((e) => e.toString()) ?? []);
+                      final currentUserIsBlocked =
+                          blockedUsers.contains(currentUserId);
+
+                      // 3. Reverse blocking filter (NEW ADDITION)
+                      final myBlockedUsers =
+                          List<String>.from(_currentUserData['blocked'] ?? []);
+                      final iHaveBlockedThisUser =
+                          myBlockedUsers.contains(data['uid']);
+
+                      return matchesSearch &&
+                          !currentUserIsBlocked &&
+                          !iHaveBlockedThisUser;
                     }).toList();
 
                     if (filteredDocs.isEmpty) {
@@ -536,6 +549,7 @@ class _HomePageState extends State<HomePage> {
     if (doc.exists) {
       setState(() {
         _currentUserGender = doc.data()?['gender'] ?? '';
+        _currentUserData = doc.data() ?? {};
       });
     }
   }
