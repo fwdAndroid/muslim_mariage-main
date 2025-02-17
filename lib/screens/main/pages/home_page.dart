@@ -464,9 +464,8 @@ class _HomePageState extends State<HomePage> {
                                                       ),
                                                     ),
                                                     // Chat Icon
-                                                    IconButton(
-                                                      iconSize: 40,
-                                                      onPressed: () {
+                                                    GestureDetector(
+                                                      onTap: () {
                                                         Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
@@ -510,12 +509,9 @@ class _HomePageState extends State<HomePage> {
                                                                     friendQualification: data['qualification'] ?? "Not Available",
                                                                     yourSelf: data['aboutYourself'] ?? "Not Available")));
                                                       },
-                                                      icon: Icon(
-                                                        Icons
-                                                            .chat_bubble_outline,
-                                                        color:
-                                                            mainColor, // Chat icon color
-                                                      ),
+                                                      child: Image.asset(
+                                                          "assets/icons8-chat-48.png",
+                                                          height: 40),
                                                     ),
                                                   ],
                                                 ),

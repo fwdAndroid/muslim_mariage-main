@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:muslim_mariage/screens/auth/login_screen.dart';
 import 'package:muslim_mariage/screens/auth/signup_screen.dart';
 import 'package:muslim_mariage/utils/colors.dart';
 
@@ -109,14 +108,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     children: [
                       TextButton(
                         onPressed: _onSkip,
-                        child: const Text(
+                        child: Text(
                           "Skip",
                           style: TextStyle(color: colorWhite),
                         ),
                       ),
                       TextButton(
                         onPressed: _onNext,
-                        child: const Text(
+                        child: Text(
                           "Next",
                           style: TextStyle(color: colorWhite),
                         ),
