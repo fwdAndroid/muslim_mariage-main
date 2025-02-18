@@ -86,7 +86,8 @@ class AuthMethods {
           "contactNumber": phone,
           "location": location,
           "status": 'pending',
-          "favorite": []
+          "favorite": [],
+          "blocked": []
         });
 
         res = 'success';

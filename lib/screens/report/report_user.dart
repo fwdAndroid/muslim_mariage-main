@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:muslim_mariage/screens/main/main_dashboard.dart';
+import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:uuid/uuid.dart';
@@ -19,11 +22,44 @@ class _ReportUserState extends State<ReportUser> {
   final TextEditingController _messageController = TextEditingController();
   bool isLoading = false;
   bool hasReported = false;
+  bool isBlocked = false;
 
   @override
   void initState() {
     super.initState();
     _checkIfUserReported();
+  }
+
+  Future<void> blockUser() async {
+    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    try {
+      final userDoc =
+          FirebaseFirestore.instance.collection("users").doc(currentUserId);
+
+      await userDoc.update({
+        "blocked": FieldValue.arrayUnion([widget.FriendID]),
+      });
+
+      setState(() {
+        isBlocked = true;
+      });
+
+      Fluttertoast.showToast(
+        backgroundColor: mainColor,
+        msg: "${widget.FriendName} has been blocked",
+        textColor: Colors.white,
+      );
+      Navigator.push(
+          context, MaterialPageRoute(builder: (builder) => MainDashboard()));
+    } catch (e) {
+      print("Error blocking user: $e");
+      Fluttertoast.showToast(
+        backgroundColor: Colors.red,
+        msg: "Failed to block user",
+        textColor: Colors.white,
+      );
+    }
   }
 
   // Check if the current user has already reported the friend
@@ -57,7 +93,7 @@ class _ReportUserState extends State<ReportUser> {
             Navigator.pop(context);
           },
         ),
-        title: const Text('Reports'),
+        title: const Text('Reports & Blocked Users'),
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
@@ -101,50 +137,73 @@ class _ReportUserState extends State<ReportUser> {
                 ),
                 const SizedBox(height: 16),
                 const Spacer(),
-                isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : SaveButton(
-                        onTap: hasReported
-                            ? null
-                            : () async {
-                                if (_messageController.text.isEmpty) {
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: isBlocked
+                      ? const Center(
+                          child: Text(
+                            "User has been blocked",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 18,
+                            ),
+                          ),
+                        )
+                      : SaveButton(
+                          onTap: () async {
+                            await blockUser();
+                          },
+                          title: "Block User",
+                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(),
+                        )
+                      : SaveButton(
+                          onTap: hasReported
+                              ? null
+                              : () async {
+                                  if (_messageController.text.isEmpty) {
+                                    showMessageBar(
+                                        "Please enter your message", context);
+                                    return;
+                                  }
+
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+
+                                  await FirebaseFirestore.instance
+                                      .collection("report")
+                                      .doc(uuid)
+                                      .set({
+                                    "message": _messageController.text,
+                                    "timestamp": DateTime.now(),
+                                    "uuid": uuid,
+                                    "email": snap['email'],
+                                    "name": snap['fullName'],
+                                    "status": "pending",
+                                    "reporterId":
+                                        FirebaseAuth.instance.currentUser!.uid,
+                                    "reportedId": widget.FriendID,
+                                  });
+
+                                  setState(() {
+                                    _messageController.clear();
+                                    isLoading = false;
+                                    hasReported = true;
+                                  });
+
                                   showMessageBar(
-                                      "Please enter your message", context);
-                                  return;
-                                }
-
-                                setState(() {
-                                  isLoading = true;
-                                });
-
-                                await FirebaseFirestore.instance
-                                    .collection("report")
-                                    .doc(uuid)
-                                    .set({
-                                  "message": _messageController.text,
-                                  "timestamp": DateTime.now(),
-                                  "uuid": uuid,
-                                  "email": snap['email'],
-                                  "name": snap['fullName'],
-                                  "status": "pending",
-                                  "reporterId":
-                                      FirebaseAuth.instance.currentUser!.uid,
-                                  "reportedId": widget.FriendID,
-                                });
-
-                                setState(() {
-                                  _messageController.clear();
-                                  isLoading = false;
-                                  hasReported = true;
-                                });
-
-                                showMessageBar(
-                                    "Complaint sent to admin", context);
-                              },
-                        title: hasReported ? "Already Reported" : "Send",
-                      ),
+                                      "Complaint sent to admin", context);
+                                },
+                          title:
+                              hasReported ? "Already Reported" : "Send Report",
+                        ),
+                ),
               ],
             ),
           );
