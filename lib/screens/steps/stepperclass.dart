@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:muslim_mariage/screens/profile/upload_photo.dart';
-import 'package:muslim_mariage/utils/showmesssage.dart';
+import 'package:muslim_mariage/screens/steps/step_controllers.dart';
+import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:intl/intl.dart';
 import 'package:muslim_mariage/widgets/text_widget.dart';
@@ -19,236 +17,170 @@ class _CompleteProfileStepperState extends State<CompleteProfileStepper> {
   String _selectedGender = 'Male';
   String _selectedMaritalStatus = 'UnMarried';
   String _selectedSect = 'MASLAK E ALA HAZRAT';
-  final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _fatherController = TextEditingController();
-  final TextEditingController _motherController = TextEditingController();
-  final TextEditingController _baradhariController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _qualificationController =
-      TextEditingController();
-  final TextEditingController _jobOccupationController =
-      TextEditingController();
-  final TextEditingController _yourselfController = TextEditingController();
-  TextEditingController _controller = TextEditingController();
 
   List<Step> getSteps() {
     return [
       Step(
-        title: Text('Basic Information'),
+        state: _currentStep <= 0 ? StepState.editing : StepState.complete,
+        isActive: _currentStep >= 0,
+        stepStyle: StepStyle(connectorColor: mainColor),
+        title: Text('STEP 1'),
         content: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _buildDropdownField(
-                  'Profile Creator',
-                  ['Self', 'Father', 'Mother', 'Brother', 'Uncle'],
-                  _profileCreator, (value) {
-                setState(() => _profileCreator = value);
-              }),
+            _buildDropdownField(
+                'Profile Creator',
+                ['Self', 'Father', 'Mother', 'Brother', 'Uncle'],
+                _profileCreator, (value) {
+              setState(() => _profileCreator = value);
+            }),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('Full Name', _userNameController),
+            buildTextField('Full Name', userNameController),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('Father Name', _fatherController),
+            buildTextField('Father Name', fatherController),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('Mother Name', _motherController),
+            buildTextField('Mother Name', motherController),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('Cast', _baradhariController),
+            buildTextField('Cast', baradhariController),
+            const SizedBox(
+              height: 12,
             ),
-            buildDateField('Date of Birth', _dobController),
+            buildDateField('Date of Birth', dobController),
           ],
         ),
-        isActive: _currentStep >= 0,
       ),
       Step(
-        title: Text('Personal & Professional'),
+        state: _currentStep <= 1 ? StepState.editing : StepState.complete,
+        isActive: _currentStep >= 1,
+        stepStyle: StepStyle(connectorColor: mainColor),
+        title: Text('STEP 2'),
         content: Column(
           children: [
             _buildDropdownField('Gender', ['Male', 'Female'], _selectedGender,
                 (value) {
               setState(() => _selectedGender = value);
             }),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _buildDropdownField(
-                  'Marital Status',
-                  ['UnMarried', 'Married', 'Divorced', 'Widowed'],
-                  _selectedMaritalStatus, (value) {
-                setState(() => _selectedMaritalStatus = value);
-              }),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextFieldNumber('Height', _heightController, null),
+            _buildDropdownField(
+                'Marital Status',
+                ['UnMarried', 'Married', 'Divorced', 'Widowed'],
+                _selectedMaritalStatus, (value) {
+              setState(() => _selectedMaritalStatus = value);
+            }),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextFieldNumber('Monthly Income', _controller, null),
+            buildTextFieldNumber('Height', heightController, null),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('Qualification', _qualificationController),
+            buildTextFieldNumber('Monthly Income', controller, null),
+            const SizedBox(
+              height: 12,
             ),
-            buildTextField('Job Occupation', _jobOccupationController),
+            buildTextField('Qualification', qualificationController),
+            const SizedBox(
+              height: 12,
+            ),
+            buildTextField('Job Occupation', jobOccupationController),
           ],
         ),
-        isActive: _currentStep >= 1,
       ),
       Step(
-        title: Text('Additional Details'),
+        state: StepState.complete,
+        isActive: _currentStep >= 2,
+        title: Text('STEP 3'),
         content: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: _buildDropdownField(
-                  'Your Sect', ['MASLAK E ALA HAZRAT'], _selectedSect, (value) {
-                setState(() => _selectedSect = value);
-              }),
+            _buildDropdownField(
+                'Your Sect', ['MASLAK E ALA HAZRAT'], _selectedSect, (value) {
+              setState(() => _selectedSect = value);
+            }),
+            const SizedBox(
+              height: 12,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: buildTextField('About Yourself', _yourselfController,
-                  maxLines: 4),
+            buildTextField('About Yourself', yourselfController, maxLines: 4),
+            const SizedBox(
+              height: 12,
             ),
-            SaveButton(title: "Continue", onTap: _saveProfile),
           ],
         ),
-        isActive: _currentStep >= 2,
       ),
     ];
-  }
-
-  void _saveProfile() {
-    // Check if name fields have at least 4 characters
-    if (_fatherController.text.length < 4 ||
-        _motherController.text.length < 4) {
-      showAlert('Father and Mother names must be at least 4 characters long.',
-          context);
-      return;
-    }
-
-    // Check if Date of Birth is selected and calculate the age
-    if (_dobController.text.isEmpty) {
-      showAlert('Please select your Date of Birth.', context);
-      return;
-    }
-
-    DateTime dob = DateFormat('dd/MM/yy').parse(_dobController.text);
-    int age = DateTime.now().year - dob.year;
-    if (DateTime.now().month < dob.month ||
-        (DateTime.now().month == dob.month && DateTime.now().day < dob.day)) {
-      age--;
-    }
-
-    // Age validation based on gender
-    if (_selectedGender == 'Female' && age < 18) {
-      showAlert('Females must be at least 18 years old.', context);
-      return;
-    } else if (_selectedGender == 'Male' && age < 21) {
-      showAlert('Males must be at least 21 years old.', context);
-      return;
-    }
-
-    // Check if all fields are filled
-    if (_fatherController.text.isEmpty ||
-        _motherController.text.isEmpty ||
-        _dobController.text.isEmpty ||
-        _qualificationController.text.isEmpty ||
-        _jobOccupationController.text.isEmpty ||
-        _controller.text.isEmpty ||
-        _yourselfController.text.isEmpty ||
-        _baradhariController.text.isEmpty ||
-        _heightController.text.isEmpty) {
-      showAlert('Please fill all fields before continuing.', context);
-      return;
-    }
-
-    // Proceed to save profile to Firestore
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({
-      'profileCreator': _profileCreator,
-      'fatherName': _fatherController.text,
-      'motherName': _motherController.text,
-      'fullName': _userNameController.text,
-      'dob': _dobController.text,
-      'sect': _selectedSect,
-      'gender': _selectedGender,
-      'maritalStatus': _selectedMaritalStatus,
-      'qualification': _qualificationController.text,
-      'jobOccupation': _jobOccupationController.text,
-      'aboutYourself': _yourselfController.text,
-      'cast': _baradhariController.text,
-      "height": _heightController.text,
-      "salary": _controller.text
-    }).then((_) {
-      showMessageBar("Profile Created Successfully", context);
-      Navigator.push(context,
-          MaterialPageRoute(builder: (builder) => const UploadPhoto()));
-    }).catchError((error) {
-      showAlert('Failed to save profile: $error', context);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+            backgroundColor: mainColor,
             centerTitle: true,
             automaticallyImplyLeading: false,
-            title: Text("Complete Profile")),
+            title: Text(
+              "Complete Profile",
+              style: TextStyle(color: colorWhite),
+            )),
         body: Stepper(
-          currentStep: _currentStep,
-          onStepContinue: () {
-            if (_currentStep < getSteps().length - 1) {
-              setState(() => _currentStep++);
-            }
-          },
-          onStepCancel: () {
-            if (_currentStep > 0) {
-              setState(() => _currentStep--);
-            }
-          },
-          onStepTapped: (int step) {
-            setState(() {
-              _currentStep = step;
-            });
-          },
-          controlsBuilder: (context, details) {
-            if (_currentStep == getSteps().length - 1) {
-              // Show only the Save button on the last step
-              return SaveButton(
-                title: "Save",
-                onTap: _saveProfile,
-              );
-            } else {
-              // Show Continue and Cancel buttons for other steps
+            type: StepperType.horizontal,
+            currentStep: _currentStep,
+            physics: ScrollPhysics(),
+            onStepContinue: () {
+              if (_currentStep < getSteps().length - 1) {
+                setState(() => _currentStep++);
+              }
+            },
+            onStepCancel: () {
+              if (_currentStep > 0) {
+                setState(() => _currentStep--);
+              }
+            },
+            onStepTapped: (int step) {
+              setState(() {
+                _currentStep = step;
+              });
+            },
+            controlsBuilder: (context, details) {
               return Row(
                 children: [
-                  TextButton(
-                    onPressed: details.onStepCancel,
-                    child: Text('Back'),
-                  ),
+                  if (_currentStep > 0) // Show Back button on Step 2 and Step 3
+                    TextButton(
+                      onPressed: details.onStepCancel,
+                      child: Text('Back'),
+                    ),
                   Spacer(),
                   TextButton(
-                    onPressed: details.onStepContinue,
-                    child: Text('Continue'),
+                    onPressed: () {
+                      if (_currentStep == getSteps().length - 1) {
+                        saveProfile(context); // Save the profile when on Step 3
+                      } else {
+                        details.onStepContinue?.call();
+                      }
+                    },
+                    child: Text(
+                      _currentStep == getSteps().length - 1
+                          ? "Save"
+                          : "Continue",
+                      style: TextStyle(
+                        color: _currentStep == getSteps().length - 1
+                            ? mainColor
+                            : null, // Apply mainColor to Save
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               );
-            }
-          },
-          steps: getSteps(),
-        ));
+            },
+            steps: getSteps()));
   }
 
   Widget _buildDropdownField(String label, List<String> items,
