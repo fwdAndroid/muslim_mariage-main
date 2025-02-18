@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:muslim_mariage/screens/profile/upload_photo.dart';
-import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';
 import 'package:muslim_mariage/widgets/save_button.dart';
 import 'package:intl/intl.dart';
@@ -15,7 +14,6 @@ class CompleteProfileStepper extends StatefulWidget {
 
 class _CompleteProfileStepperState extends State<CompleteProfileStepper> {
   int _currentStep = 0;
-  final _formKey = GlobalKey<FormState>();
 
   String _profileCreator = 'Self';
   String _selectedGender = 'Male';
@@ -27,7 +25,6 @@ class _CompleteProfileStepperState extends State<CompleteProfileStepper> {
   final TextEditingController _baradhariController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _incomeController = TextEditingController();
   final TextEditingController _qualificationController =
       TextEditingController();
   final TextEditingController _jobOccupationController =
