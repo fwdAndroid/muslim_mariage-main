@@ -22,6 +22,39 @@ class _HomePageState extends State<HomePage> {
   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
   String _currentUserGender = '';
   Map<String, dynamic> _currentUserData = {};
+
+  bool _isProfileIncomplete(Map<String, dynamic> userData) {
+    // Checking if any required field is missing, null, or an empty string
+    return (userData['profileCreator'] == null ||
+            userData['profileCreator'].toString().trim().isEmpty) ||
+        (userData['fatherName'] == null ||
+            userData['fatherName'].toString().trim().isEmpty) ||
+        (userData['motherName'] == null ||
+            userData['motherName'].toString().trim().isEmpty) ||
+        (userData['fullName'] == null ||
+            userData['fullName'].toString().trim().isEmpty) ||
+        (userData['dob'] == null ||
+            userData['dob'].toString().trim().isEmpty) ||
+        (userData['sect'] == null ||
+            userData['sect'].toString().trim().isEmpty) ||
+        (userData['gender'] == null ||
+            userData['gender'].toString().trim().isEmpty) ||
+        (userData['maritalStatus'] == null ||
+            userData['maritalStatus'].toString().trim().isEmpty) ||
+        (userData['qualification'] == null ||
+            userData['qualification'].toString().trim().isEmpty) ||
+        (userData['jobOccupation'] == null ||
+            userData['jobOccupation'].toString().trim().isEmpty) ||
+        (userData['aboutYourself'] == null ||
+            userData['aboutYourself'].toString().trim().isEmpty) ||
+        (userData['cast'] == null ||
+            userData['cast'].toString().trim().isEmpty) ||
+        (userData['height'] == null ||
+            userData['height'].toString().trim().isEmpty) ||
+        (userData['salary'] == null ||
+            userData['salary'].toString().trim().isEmpty);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -139,10 +172,12 @@ class _HomePageState extends State<HomePage> {
                           List<String>.from(_currentUserData['blocked'] ?? []);
                       final iHaveBlockedThisUser =
                           myBlockedUsers.contains(data['uid']);
-
+                      // 4. Profile completeness check (NEW ADDITION)
+                      final isProfileComplete = !_isProfileIncomplete(data);
                       return matchesSearch &&
                           !currentUserIsBlocked &&
-                          !iHaveBlockedThisUser;
+                          !iHaveBlockedThisUser &&
+                          isProfileComplete; // Add this line
                     }).toList();
 
                     if (filteredDocs.isEmpty) {
