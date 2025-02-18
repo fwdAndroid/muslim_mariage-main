@@ -133,8 +133,34 @@ class _CompleteProfileStepperState extends State<CompleteProfileStepper> {
             currentStep: _currentStep,
             physics: ScrollPhysics(),
             onStepContinue: () {
-              if (_currentStep < getSteps().length - 1) {
-                setState(() => _currentStep++);
+              if (_currentStep == 0) {
+                if (userNameController.text.isEmpty ||
+                    fatherController.text.isEmpty ||
+                    motherController.text.isEmpty ||
+                    baradhariController.text.isEmpty ||
+                    dobController.text.isEmpty) {
+                  showErrorMessage(
+                      'All fields in Step 1 are required.', context);
+                } else {
+                  setState(() => _currentStep++);
+                }
+              } else if (_currentStep == 1) {
+                if (heightController.text.isEmpty ||
+                    controller.text.isEmpty ||
+                    qualificationController.text.isEmpty ||
+                    jobOccupationController.text.isEmpty) {
+                  showErrorMessage(
+                      'All fields in Step 2 are required.', context);
+                } else {
+                  setState(() => _currentStep++);
+                }
+              } else if (_currentStep == 2) {
+                if (yourselfController.text.isEmpty) {
+                  showErrorMessage(
+                      'About Yourself field is required.', context);
+                } else {
+                  saveProfile(context);
+                }
               }
             },
             onStepCancel: () {

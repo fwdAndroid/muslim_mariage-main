@@ -353,7 +353,13 @@ class _ProfileDetailState extends State<ProfileDetail>
 
   Widget buildIdCardAndPhoto() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          "Photo",
+          style: TextStyle(
+              color: mainColor, fontWeight: FontWeight.bold, fontSize: 22),
+        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Center(
@@ -365,6 +371,11 @@ class _ProfileDetailState extends State<ProfileDetail>
                   width: MediaQuery.of(context).size.width),
             ),
           ),
+        ),
+        Text(
+          "ID Card",
+          style: TextStyle(
+              color: mainColor, fontWeight: FontWeight.bold, fontSize: 22),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),

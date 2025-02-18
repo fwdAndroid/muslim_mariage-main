@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:muslim_mariage/screens/profile/upload_photo.dart';
+import 'package:muslim_mariage/utils/colors.dart';
 import 'package:muslim_mariage/utils/showmesssage.dart';
 import 'package:muslim_mariage/widgets/text_widget.dart';
 
@@ -92,4 +93,14 @@ void saveProfile(BuildContext context) {
   }).catchError((error) {
     showAlert('Failed to save profile: $error', context);
   });
+}
+
+showErrorMessage(String message, BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+        content: Text(
+      message,
+      style: TextStyle(color: red),
+    )),
+  );
 }
