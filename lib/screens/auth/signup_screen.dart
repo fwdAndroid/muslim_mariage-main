@@ -105,32 +105,40 @@ class _SignupScreenState extends State<SignupScreen> {
                   margin: const EdgeInsets.only(left: 10, right: 10),
                   padding: const EdgeInsets.all(8),
                   child: TextFormField(
-                    validator: RegisterFunctions().validatePassword,
-                    obscureText: !passwordVisible,
                     controller: _passwordController,
                     style: GoogleFonts.poppins(color: black),
+                    obscureText: !passwordVisible,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Password is required';
+                      } else if (value.length < 6) {
+                        return 'Password must be at least 6 characters long';
+                      }
+                      return null;
+                    },
                     decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          onPressed: toggleShowPassword,
-                          icon: passwordVisible
-                              ? Icon(Icons.visibility_off, color: iconColor)
-                              : Icon(Icons.visibility, color: iconColor),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.lock,
-                          color: iconColor,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: mainColor)),
-                        errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: mainColor)),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: mainColor)),
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide(color: mainColor)),
-                        hintText: "Enter Password",
-                        hintStyle:
-                            GoogleFonts.poppins(color: black, fontSize: 12)),
+                      suffixIcon: IconButton(
+                        onPressed: toggleShowPassword,
+                        icon: passwordVisible
+                            ? Icon(Icons.visibility_off, color: iconColor)
+                            : Icon(Icons.visibility, color: iconColor),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        color: iconColor,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: mainColor)),
+                      errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: mainColor)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: mainColor)),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: mainColor)),
+                      hintText: "Enter Password",
+                      hintStyle:
+                          GoogleFonts.poppins(color: black, fontSize: 12),
+                    ),
                   ),
                 ),
                 Container(
