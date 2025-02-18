@@ -135,9 +135,12 @@ class _SearchPageState extends State<SearchPage> {
                         itemBuilder: (context, index) {
                           final data = filteredDocs[index].data()
                               as Map<String, dynamic>;
-                          final birthday = DateTime.parse(data['dob']);
-                          final age =
-                              RegisterFunctions().calculateAge(birthday);
+                          final dob = data['dob'] ?? '';
+                          DateTime? birthday = parseDob(dob);
+
+                          final age = birthday != null
+                              ? calculateAge(birthday)
+                              : "Unknown";
                           return Card(
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8)),
@@ -239,5 +242,39 @@ class _SearchPageState extends State<SearchPage> {
         ],
       ),
     );
+  }
+
+  DateTime? parseDob(String dob) {
+    try {
+      final parts = dob.split('/');
+      if (parts.length == 3) {
+        int day = int.parse(parts[0]);
+        int month = int.parse(parts[1]);
+        int year = int.parse(parts[2]);
+
+        // Handle two-digit years
+        if (year < 100) {
+          final currentYear = DateTime.now().year % 100;
+          year += (year > currentYear ? 1900 : 2000);
+        }
+
+        return DateTime(year, month, day);
+      }
+    } catch (e) {
+      // Handle invalid date parsing
+      return null;
+    }
+    return null;
+  }
+
+  // Function to calculate the user's age from the parsed birthday.
+  String calculateAge(DateTime birthday) {
+    final DateTime today = DateTime.now();
+    int age = today.year - birthday.year;
+    if (today.month < birthday.month ||
+        (today.month == birthday.month && today.day < birthday.day)) {
+      age--;
+    }
+    return age.toString();
   }
 }
